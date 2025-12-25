@@ -1,13 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { version } from '../package.json';
 
 const TermsScreen: React.FC = () => {
   const navigation = useNavigation();
   
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#1E293B" />
@@ -73,10 +74,10 @@ const TermsScreen: React.FC = () => {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Last updated: {new Date().toLocaleDateString()}</Text>
-          <Text style={styles.footerText}>Version 1.3.0</Text>
+          <Text style={styles.footerText}>Version {version}</Text>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

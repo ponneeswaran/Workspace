@@ -2,6 +2,9 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import SplashView from '../screens/SplashView';
+import AuthView from '../screens/AuthView';
+import OnboardingView from '../screens/OnboardingView';
 import HomeView from '../screens/HomeView';
 import HistoryView from '../screens/HistoryView';
 import ChatView from '../screens/ChatView';
@@ -10,6 +13,9 @@ import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
 export type RootStackParamList = {
+  Splash: undefined;
+  Auth: undefined;
+  Onboarding: undefined;
   Main: undefined;
   Terms: undefined;
 };
@@ -42,13 +48,16 @@ const MainTabs = () => (
   </Tab.Navigator>
 );
 
-const AppNavigator: React.FC = () => (
+const RootNavigator: React.FC = () => (
   <NavigationContainer>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Splash" component={SplashView} />
+      <Stack.Screen name="Auth" component={AuthView} />
+      <Stack.Screen name="Onboarding" component={OnboardingView} />
       <Stack.Screen name="Main" component={MainTabs} />
       <Stack.Screen name="Terms" component={TermsScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );
 
-export default AppNavigator;
+export default RootNavigator;

@@ -1,7 +1,13 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
-const SplashView: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
+type SplashScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Splash'>;
+
+const SplashView: React.FC = () => {
+  const navigation = useNavigation<SplashScreenNavigationProp>();
   const fadeAnim = new Animated.Value(0);
 
   useEffect(() => {
@@ -10,9 +16,9 @@ const SplashView: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
       duration: 2000,
       useNativeDriver: true,
     }).start(() => {
-      setTimeout(onFinish, 1000);
+      setTimeout(() => navigation.navigate('Auth'), 1000);
     });
-  }, [fadeAnim, onFinish]);
+  }, [fadeAnim, navigation]);
 
   return (
     <View style={styles.container}>

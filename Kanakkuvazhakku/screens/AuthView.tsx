@@ -9,7 +9,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 
 type AuthScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
 
-const AuthView: React.FC<{ onAuth: () => void }> = ({ onAuth }) => {
+const AuthView: React.FC = () => {
   const navigation = useNavigation<AuthScreenNavigationProp>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,7 +19,7 @@ const AuthView: React.FC<{ onAuth: () => void }> = ({ onAuth }) => {
     if (email && password) {
       dispatch({ type: 'SET_AUTHENTICATED', payload: true });
       dispatch({ type: 'SET_USER', payload: { name: 'User', email, currency: 'INR', language: 'EN' } });
-      onAuth();
+      navigation.navigate('Onboarding');
     } else {
       Alert.alert('Error', 'Please enter mobile number/email and password.');
     }

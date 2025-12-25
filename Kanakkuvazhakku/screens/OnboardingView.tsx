@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
 import { useApp } from '../contexts/AppContext';
 
-const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+type OnboardingScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Onboarding'>;
+
+const OnboardingView: React.FC = () => {
+  const navigation = useNavigation<OnboardingScreenNavigationProp>();
   const [name, setName] = useState('');
   const [currency, setCurrency] = useState('INR');
   const [language, setLanguage] = useState<'EN' | 'TA'>('EN');
@@ -12,7 +18,7 @@ const OnboardingView: React.FC<{ onComplete: () => void }> = ({ onComplete }) =>
   const handleComplete = () => {
     if (name) {
       dispatch({ type: 'SET_USER', payload: { name, currency, language } });
-      onComplete();
+      navigation.navigate('Main');
     }
   };
 

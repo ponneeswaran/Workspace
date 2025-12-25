@@ -1,13 +1,20 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { LineChart, PieChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
 import { useApp } from '../contexts/AppContext';
+
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
 
 const screenWidth = Dimensions.get('window').width;
 
 const HomeView: React.FC = () => {
-  const { state } = useApp();
+  const { state, dispatch } = useApp();
+  const navigation = useNavigation<HomeScreenNavigationProp>();
 
   const totalIncome = state.incomes.reduce((sum, inc) => sum + inc.amount, 0);
   const totalExpense = state.expenses.reduce((sum, exp) => sum + exp.amount, 0);
@@ -85,6 +92,10 @@ const HomeView: React.FC = () => {
           absolute
         />
       </View>
+      <TouchableOpacity style={styles.logoutButton} onPress={() => { dispatch({ type: 'SET_AUTHENTICATED', payload: false }); navigation.replace('Auth'); }}>
+        <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
+        <Text style={styles.logoutButtonText}>Logout</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -139,6 +150,21 @@ const styles = StyleSheet.create({
   insightText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
+  },
+  logoutButton: {
+    alignItems: 'center',
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+    padding: 15,
+  },
+  logoutButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 10,
   },
   negative: {
     color: '#EF4444',
