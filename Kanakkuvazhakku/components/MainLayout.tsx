@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
-import { View, StyleSheet, useWindowDimensions, SafeAreaView } from 'react-native';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Footer from './Footer';
 import { useRoute } from '@react-navigation/native';
 
