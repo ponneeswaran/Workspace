@@ -8,6 +8,7 @@ The workspace is currently empty. This document will be updated as components ar
 - Data flows and service boundaries will be documented here once established.
 
 ## Developer Workflows
+- **Directory Check**: Before running `npm` or `yarn` commands, verify that the current working directory is the correct project folder.
 - After every file modification, run a TypeScript check (`npx tsc --noEmit`) and an ESLint check (`npx eslint . --ext .ts,.tsx`).
 - Build commands: Not yet defined.
 - Test commands: Not yet established.

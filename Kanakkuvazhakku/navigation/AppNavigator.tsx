@@ -25,6 +25,8 @@ export type RootStackParamList = {
 
 const Stack = createStackNavigator<RootStackParamList>();
 
+
+
 const DashboardScreen = () => (
   <MainLayout>
     <HomeView />

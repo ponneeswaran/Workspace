@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "react-native-element-dropdown": "^2.12.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3"
   }
 }
