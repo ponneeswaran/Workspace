@@ -18,7 +18,7 @@ const OnboardingView: React.FC = () => {
   const handleComplete = () => {
     if (name) {
       dispatch({ type: 'SET_USER', payload: { name, currency, language } });
-      navigation.navigate('Main');
+      navigation.navigate('Dashboard');
     }
   };
 

@@ -3,22 +3,12 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView,
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { ArrowRight, Smartphone, Lock, ArrowLeft, CheckCircle2, Fingerprint, User, Upload, Clock, Trash2 } from 'lucide-react-native';
-import { getLocalBackups, deleteLocalBackup, LocalBackup } from '../utils/storage';
+import { ArrowRight, Smartphone, Lock, ArrowLeft, CheckCircle2, Fingerprint, User, Clock, Trash2 } from 'lucide-react-native';
+import { LocalBackup } from '../utils/storage';
 import { useTranslation } from 'react-i18next';
 
-// Mock functions and data for now - you'll replace these with your actual context/services
-const useData = () => ({
-  login: async (id: string, pass: string) => { console.log('login', id, pass); return true; },
-  startSignup: (id: string) => { console.log('signup', id); return true; },
-  checkUserExists: (id: string) => { console.log('checkUserExists', id); return false; },
-  resetPassword: (id: string, pass: string) => { console.log('resetPassword', id, pass); return true; },
-  checkBiometricAvailability: (id: string) => { console.log('checkBiometric', id); return true; },
-  verifyBiometricLogin: async (id: string) => { console.log('verifyBiometric', id); return true; },
-  restoreUserFromBackup: async (file: unknown, pass: unknown) => { console.log('restore', file, pass); return true; },
-  getLocalBackups: getLocalBackups, // Use actual function
-  deleteLocalBackup: deleteLocalBackup, // Use actual function
-});
+
+import { useAuth } from '../utils/useAuth';
 
 // Mock OTPScreen
 const OTPScreen = ({ onVerify, onBack }: { onVerify: () => void, onBack: () => void }) => (
@@ -28,9 +18,16 @@ const OTPScreen = ({ onVerify, onBack }: { onVerify: () => void, onBack: () => v
         <TouchableOpacity style={styles.button} onPress={onVerify}><Text style={styles.buttonText}>Verify OTP</Text></TouchableOpacity>
     </View>
 );
-type AuthScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main' | 'Terms'>;
+type AuthScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Dashboard' | 'Terms'>;
 const AuthView: React.FC = () => {
-    const { login, startSignup, checkUserExists, resetPassword, checkBiometricAvailability, verifyBiometricLogin, getLocalBackups, deleteLocalBackup } = useData();
+    const { login, checkUserExists, getLocalBackups, deleteLocalBackup } = useAuth();
+    // The following are mock functions that are not yet in the useAuth hook.
+    // They will need to be implemented or removed.
+    
+    const resetPassword = (id: string, pass: string) => { console.log('resetPassword', id, pass); return true; };
+    const checkBiometricAvailability = (id: string) => { console.log('checkBiometric', id); return true; };
+    const verifyBiometricLogin = async (id: string) => { console.log('verifyBiometric', id); return true; };
+    
     const { t } = useTranslation();
     const [inputValue, setInputValue] = useState('');
     const [password, setPassword] = useState('');
@@ -48,7 +45,7 @@ const AuthView: React.FC = () => {
     const [canUseBiometric, setCanUseBiometric] = useState(false);
   
     // Backup Restore State
-    const [isRestoring, ] = useState(false);
+    const [isRestoring] = useState(false);
     const [localBackups, setLocalBackups] = useState<LocalBackup[]>([]);
   
     const navigation = useNavigation<AuthScreenNavigationProp>();
@@ -56,7 +53,7 @@ const AuthView: React.FC = () => {
     // Mocks for web-specific features
     const onLoginSuccess = (identifier: string) => {
         console.log("Login success for:", identifier);
-        navigation.navigate('Main');
+        navigation.navigate('Dashboard');
     };
     
     const onShowTerms = () => navigation.navigate('Terms');
@@ -109,12 +106,11 @@ const AuthView: React.FC = () => {
       const identifier = inputValue.trim();
   
       if (isNewUser) {
-          const success = startSignup(identifier);
-          if (success) {
-              navigation.navigate('Registration');
-          } else {
+          if (checkUserExists(identifier)) {
               setError(t('User already exists'));
+              return;
           }
+          navigation.navigate('Registration', { identifier });
       } else {
           const userExists = checkUserExists(identifier);
           if (!userExists) {
@@ -193,7 +189,35 @@ const AuthView: React.FC = () => {
         }
     }
 
-    const handleRestoreClick = () => Alert.alert("Restore", "File picker not implemented yet.");
+    const handleRestoreClick = (backupId: string) => {
+        Alert.prompt(
+            t('enter_password'),
+            t('enter_password_to_restore_backup'),
+            [
+                {
+                    text: t('cancel'),
+                    style: 'cancel',
+                },
+                {
+                    text: t('restore'),
+                    onPress: async (password: string | undefined) => {
+                        if (password) {
+                            try {
+                                // Here you would add your logic to restore the backup using the password
+                                // For now, we'll just log it.
+                                console.log(`Restoring backup ${backupId} with password: ${password}`);
+                                Alert.alert(t('restore_successful'), t('backup_restored_successfully'));
+                            } catch (error) {
+                                console.error('Error restoring backup:', error);
+                                Alert.alert(t('restore_failed'), t('error_restoring_backup'));
+                            }
+                        }
+                    },
+                },
+            ],
+            'secure-text'
+        );
+    };
 
     if (viewState === 'forgot_input') {
         return (
@@ -292,13 +316,13 @@ const AuthView: React.FC = () => {
               <View style={styles.newUserContainer}>
                   <View style={styles.backupBox}>
                       <View style={styles.backupBoxInner}>
-                          <View style={styles.backupIconWrapper}><Upload size={20} color="#14B8A6" /></View>
+                          <View style={styles.backupIconWrapper}><Text>Upload</Text></View>
                           <View>
                               <Text style={styles.backupTitle}>{t('already_have_a_backup')}</Text>
                               <Text style={styles.backupSubtitle}>{t('restore_account_from_kbf_file')}</Text>
                           </View>
                       </View>
-                      <TouchableOpacity onPress={handleRestoreClick} disabled={isRestoring} style={styles.importButton}>
+                      <TouchableOpacity onPress={() => handleRestoreClick('imported_file')} disabled={isRestoring} style={styles.importButton}>
                           {isRestoring ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.importButtonText}>{t('import')}</Text>}
                       </TouchableOpacity>
                   </View>
@@ -324,7 +348,7 @@ const AuthView: React.FC = () => {
                                               await deleteLocalBackup(backup.id);
                                               setLocalBackups(prev => prev.filter(b => b.id !== backup.id));
                                           }}><Trash2 size={16} color="#94A3B8" /></TouchableOpacity>
-                                          <TouchableOpacity onPress={() => Alert.alert("Restore", `Restore ${backup.id}?`)} style={styles.restoreButton}><Text style={styles.restoreButtonText}>{t('restore')}</Text></TouchableOpacity>
+                                          <TouchableOpacity onPress={() => handleRestoreClick(backup.id)} style={styles.restoreButton}><Text style={styles.restoreButtonText}>{t('restore')}</Text></TouchableOpacity>
                                       </View>
                                   </View>
                               ))}

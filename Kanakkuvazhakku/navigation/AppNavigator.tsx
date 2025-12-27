@@ -1,6 +1,5 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import SplashView from '../screens/SplashView';
 import AuthView from '../screens/AuthView';
@@ -10,44 +9,36 @@ import HistoryView from '../screens/HistoryView';
 import ChatView from '../screens/ChatView';
 import TermsScreen from '../screens/TermsScreen';
 import RegistrationView from '../screens/RegistrationView';
-import { Ionicons } from '@expo/vector-icons';
+import MainLayout from '../components/MainLayout';
 
-const Tab = createBottomTabNavigator();
 export type RootStackParamList = {
   Splash: undefined;
   Auth: undefined;
   Onboarding: undefined;
-  Main: undefined;
+  Dashboard: undefined;
+  Expenses: undefined;
+  Income: undefined;
+  Assistant: undefined;
   Terms: undefined;
-  Registration: undefined;
+  Registration: { identifier: string };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-const MainTabs = () => (
-  <Tab.Navigator
-    screenOptions={({ route }) => ({
-      tabBarIcon: ({ focused, color, size }) => {
-        let iconName: keyof typeof Ionicons.glyphMap = 'help'; // Default icon
-
-        if (route.name === 'Home') {
-          iconName = focused ? 'home' : 'home-outline';
-        } else if (route.name === 'History') {
-          iconName = focused ? 'list' : 'list-outline';
-        } else if (route.name === 'Chat') {
-          iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
-        }
-
-        return <Ionicons name={iconName} size={size} color={color} />;
-      },
-      tabBarActiveTintColor: '#0F766E',
-      tabBarInactiveTintColor: 'gray',
-    })}
-  >
-    <Tab.Screen name="Home" component={HomeView} />
-    <Tab.Screen name="History" component={HistoryView} />
-    <Tab.Screen name="Chat" component={ChatView} />
-  </Tab.Navigator>
+const DashboardScreen = () => (
+  <MainLayout>
+    <HomeView />
+  </MainLayout>
+);
+const ExpensesScreen = () => (
+  <MainLayout>
+    <HistoryView />
+  </MainLayout>
+);
+const AssistantScreen = () => (
+  <MainLayout>
+    <ChatView />
+  </MainLayout>
 );
 
 const RootNavigator: React.FC = () => (
@@ -56,9 +47,11 @@ const RootNavigator: React.FC = () => (
       <Stack.Screen name="Splash" component={SplashView} />
       <Stack.Screen name="Auth" component={AuthView} />
       <Stack.Screen name="Onboarding" component={OnboardingView} />
-      <Stack.Screen name="Main" component={MainTabs} />
       <Stack.Screen name="Terms" component={TermsScreen} />
       <Stack.Screen name="Registration" component={RegistrationView} />
+      <Stack.Screen name="Dashboard" component={DashboardScreen} />
+      <Stack.Screen name="Expenses" component={ExpensesScreen} />
+      <Stack.Screen name="Assistant" component={AssistantScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );

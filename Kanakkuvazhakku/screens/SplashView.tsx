@@ -54,9 +54,7 @@ const SplashView: React.FC = () => {
     outputRange: ['0%', '100%'],
   });
 
-  // NOTE: The path to the background image is assumed.
-  // Make sure you have the image at the specified location.
-  // const BG_IMAGE = require('../assets/splash-background.jpg');
+
 
   return (
     <View style={styles.background}>
@@ -103,9 +101,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 16,
   },
-  imageStyle: {
-    opacity: 0.8,
-  },
+
   loadingBar: {
     backgroundColor: '#5EEAD4', // teal-300
     borderRadius: 9999,

@@ -1,176 +1,175 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { LineChart, PieChart } from 'react-native-chart-kit';
-import { Dimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Sparkles, ArrowDown, ArrowUp } from 'lucide-react-native';
+import { Picker } from '@react-native-picker/picker';
 import { useApp } from '../contexts/AppContext';
 
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
-
-const screenWidth = Dimensions.get('window').width;
-
 const HomeView: React.FC = () => {
-  const { state, dispatch } = useApp();
-  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const { state } = useApp();
+  const { user } = state;
 
   const totalIncome = state.incomes.reduce((sum, inc) => sum + inc.amount, 0);
   const totalExpense = state.expenses.reduce((sum, exp) => sum + exp.amount, 0);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const netBalance = totalIncome - totalExpense;
-
-  // Sample data for charts
-  const lineData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-    datasets: [{
-      data: [20, 45, 28, 80, 99],
-    }],
-  };
-
-  const pieData: Array<{ name: string; amount: number; color: string; legendFontColor: string }> = state.expenses.reduce(
-    (acc: Array<{ name: string; amount: number; color: string; legendFontColor: string }>, exp) => {
-    const existing = acc.find(item => item.name === exp.category);
-    if (existing) {
-      existing.amount += exp.amount;
-    } else {
-      acc.push({ name: exp.category, amount: exp.amount, color: '#0F766E', legendFontColor: '#0F766E' });
-    }
-    return acc;
-    },
-    [],
-  );
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Period Expense</Text>
-        <Text style={styles.cardValue}>₹{totalExpense}</Text>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.title}>Ledger Summary</Text>
+          <Text style={styles.subtitle}>Welcome, {user?.name || 'User'}</Text>
+        </View>
+        <View style={styles.profileIcon}>
+          <Text style={styles.profileIconText}>{user?.name?.charAt(0).toUpperCase() || 'P'}</Text>
+        </View>
       </View>
-      <View style={styles.insight}>
-        <Text style={styles.insightText}>AI Insight: You&apos;re spending more on food this month!</Text>
+
+      <View style={styles.aiInsightCard}>
+        <Sparkles size={24} color="#FFFFFF" />
+        <View style={styles.aiInsightTextContainer}>
+          <Text style={styles.aiInsightTitle}>AI ASSISTANT INSIGHT</Text>
+          <Text style={styles.aiInsightText}>Keep tracking your expenses to see insights!</Text>
+        </View>
       </View>
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Spending Trends</Text>
-        <LineChart
-          data={lineData}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={{
-            backgroundColor: '#FFFFFF',
-            backgroundGradientFrom: '#FFFFFF',
-            backgroundGradientTo: '#FFFFFF',
-            decimalPlaces: 2,
-            color: (opacity = 1) => `rgba(15, 118, 110, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(15, 118, 110, ${opacity})`,
-            style: {
-              borderRadius: 16,
-            },
-            propsForDots: {
-              r: '6',
-              strokeWidth: '2',
-              stroke: '#0F766E',
-            },
-          }}
-          bezier
-          style={styles.chart}
-        />
+      
+      <View style={styles.timeFrameContainer}>
+        <Text style={styles.timeFrameLabel}>Ledger time frame:</Text>
+        <Picker
+          selectedValue="Monthly"
+          style={styles.picker}
+          onValueChange={(itemValue) => console.log(itemValue)}
+        >
+          <Picker.Item label="Monthly" value="Monthly" />
+          <Picker.Item label="Yearly" value="Yearly" />
+        </Picker>
       </View>
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Category Breakdown</Text>
-        <PieChart
-          data={pieData}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={{
-            color: (opacity = 1) => `rgba(15, 118, 110, ${opacity})`,
-          }}
-          accessor="amount"
-          backgroundColor="transparent"
-          paddingLeft="15"
-          absolute
-        />
+
+      <View style={styles.summaryContainer}>
+        <View style={[styles.summaryCard, styles.incomeCard]}>
+          <View style={styles.summaryHeader}>
+            <ArrowDown size={16} color="#10B981" />
+            <Text style={styles.summaryTitle}>INCOME</Text>
+          </View>
+          <Text style={styles.summaryAmount}>₹{totalIncome}</Text>
+          <Text style={styles.summaryPeriod}>Total for Period</Text>
+        </View>
+
+        <View style={[styles.summaryCard, styles.expenseCard]}>
+          <View style={styles.summaryHeader}>
+            <ArrowUp size={16} color="#EF4444" />
+            <Text style={styles.summaryTitle}>EXPENSE</Text>
+          </View>
+          <Text style={styles.summaryAmount}>₹{totalExpense}</Text>
+          <Text style={styles.summaryPeriod}>Total for Period</Text>
+          <Text style={styles.summaryToday}>₹0 Today</Text>
+        </View>
       </View>
-      <TouchableOpacity style={styles.logoutButton} onPress={() => { dispatch({ type: 'SET_AUTHENTICATED', payload: false }); navigation.replace('Auth'); }}>
-        <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#FFFFFF',
+  aiInsightCard: {
+    alignItems: 'center',
+    backgroundColor: '#14B8A6',
     borderRadius: 10,
-    elevation: 3,
-    marginBottom: 10,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  cardTitle: {
-    color: '#0D9488',
-    fontSize: 14,
-  },
-  cardValue: {
-    color: '#0F766E',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  chart: {
-    borderRadius: 16,
-  },
-  chartContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
+    flexDirection: 'row',
     marginBottom: 20,
     padding: 20,
   },
-  chartTitle: {
-    color: '#0F766E',
-    fontSize: 18,
+  aiInsightText: {
+    color: '#FFFFFF',
+  },
+  aiInsightTextContainer: {
+    marginLeft: 15,
+  },
+  aiInsightTitle: {
+    color: '#FFFFFF',
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   container: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F1F5F9',
     flex: 1,
     padding: 20,
   },
-  insight: {
-    backgroundColor: '#F59E0B',
-    borderRadius: 10,
-    marginBottom: 20,
-    padding: 15,
+  expenseCard: {
+    backgroundColor: '#FEE2E2',
   },
-  insightText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  logoutButton: {
+  header: {
     alignItems: 'center',
-    backgroundColor: '#EF4444',
-    borderRadius: 10,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     marginBottom: 20,
-    padding: 15,
   },
-  logoutButtonText: {
+  incomeCard: {
+    backgroundColor: '#D1FAE5',
+  },
+  picker: {
+    backgroundColor: '#FFFFFF',
+    width: 150,
+  },
+  profileIcon: {
+    alignItems: 'center',
+    backgroundColor: '#0D9488',
+    borderRadius: 20,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
+  profileIconText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginLeft: 10,
   },
-  negative: {
-    color: '#EF4444',
+  subtitle: {
+    color: '#64748B',
+    fontSize: 16,
   },
-  positive: {
-    color: '#10B981',
+  summaryAmount: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  summaryCard: {
+    borderRadius: 10,
+    padding: 20,
+    width: '48%',
+  },
+  summaryContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  summaryHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  summaryPeriod: {
+    color: '#6B7280',
+  },
+  summaryTitle: {
+    color: '#4B5563',
+    fontWeight: 'bold',
+    marginLeft: 5,
+  },
+  summaryToday: {
+    color: '#6B7280',
+    marginTop: 10,
+  },
+  timeFrameContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  timeFrameLabel: {
+    color: '#475569',
+    fontSize: 16,
+  },
+  title: {
+    color: '#1E293B',
+    fontSize: 24,
+    fontWeight: 'bold',
   },
 });
 

@@ -6,16 +6,29 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Dropdown } from 'react-native-element-dropdown';
+import * as SecureStore from 'expo-secure-store';
 
-type RegistrationScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
+type RegistrationScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Dashboard'>;
+
+
+
+import { useAuth } from '../utils/useAuth';
+
+import { RouteProp, useRoute } from '@react-navigation/native';
+
+type RegistrationRouteProp = RouteProp<RootStackParamList, 'Registration'>;
 
 const RegistrationView: React.FC = () => {
+    const route = useRoute<RegistrationRouteProp>();
+    const { identifier } = route.params;
+    
+    const { checkUserExists } = useAuth();
     const { t } = useTranslation();
     const navigation = useNavigation<RegistrationScreenNavigationProp>();
-
+    
     const [name, setName] = useState('');
-    const [mobile, setMobile] = useState('');
-    const [email, setEmail] = useState('');
+    const [mobile, setMobile] = useState(identifier.includes('@') ? '' : identifier);
+    const [email, setEmail] = useState(identifier.includes('@') ? identifier : '');
     const [language, setLanguage] = useState('en');
     const [currency, setCurrency] = useState('₹');
     const [password, setPassword] = useState('');
@@ -70,10 +83,32 @@ const RegistrationView: React.FC = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (validate()) {
-            // completeOnboarding({ name, mobile, email, language, currency, password });
-            navigation.navigate('Main');
+            if (checkUserExists(email) || checkUserExists(mobile)) {
+                setErrors({ ...errors, email: 'An account with this email or mobile already exists.' });
+                return;
+            }
+            
+            const userData = {
+                name,
+                mobile,
+                email,
+                language,
+                currency,
+                password, // In a real app, hash this password before storing!
+            };
+            try {
+                await SecureStore.setItemAsync(
+                    "user_session",
+                    JSON.stringify(userData)
+                );
+                console.log('User data saved successfully!');
+                navigation.navigate('Dashboard');
+            } catch (error) {
+                console.error('Error saving user data:', error);
+                // Handle error, e.g., show an alert to the user
+            }
         }
     };
 
