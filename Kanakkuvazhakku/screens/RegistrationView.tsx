@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { User, Mail, Phone, Globe, DollarSign, Check, Lock } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Dropdown } from 'react-native-element-dropdown';
 import * as SecureStore from 'expo-secure-store';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 type RegistrationScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Dashboard'>;
 
@@ -19,6 +20,18 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 type RegistrationRouteProp = RouteProp<RootStackParamList, 'Registration'>;
 
 const RegistrationView: React.FC = () => {
+    useFocusEffect(
+        useCallback(() => {
+            const lockOrientation = async () => {
+                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+            };
+            lockOrientation();
+            return () => {
+                ScreenOrientation.unlockAsync();
+            };
+        }, [])
+    );
+
     const route = useRoute<RegistrationRouteProp>();
     const { identifier } = route.params;
     

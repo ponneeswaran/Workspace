@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator } from 'react-native';
-import { useNavigation, StackActions } from '@react-navigation/native';
+import { useNavigation, StackActions, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { ArrowRight, Smartphone, Lock, ArrowLeft, CheckCircle2, Fingerprint, User, Clock, Trash2 } from 'lucide-react-native';
 import { LocalBackup } from '../utils/storage';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +21,18 @@ const OTPScreen = ({ onVerify, onBack }: { onVerify: () => void, onBack: () => v
 );
 type AuthScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Dashboard' | 'Terms'>;
 const AuthView: React.FC = () => {
+    useFocusEffect(
+        useCallback(() => {
+            const lockOrientation = async () => {
+                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+            };
+            lockOrientation();
+            return () => {
+                ScreenOrientation.unlockAsync();
+            };
+        }, [])
+    );
+
     const { login, checkUserExists, getLocalBackups, deleteLocalBackup } = useAuth();
     // The following are mock functions that are not yet in the useAuth hook.
     // They will need to be implemented or removed.
@@ -222,19 +235,6 @@ const AuthView: React.FC = () => {
     if (viewState === 'forgot_input') {
         return (
           <View style={styles.container}>
-              <TouchableOpacity onPress={() => setViewState('login')} style={styles.forgotInputBackButton}><ArrowLeft size={24} color="#334155" /></TouchableOpacity>
-              <Text style={styles.title}>{t('forgot_password')}</Text>
-              <Text style={styles.subtitle}>{t('enter_your_identifier_to_reset_password')}</Text>
-              <View style={styles.inputWrapper}>
-                  <User style={styles.inputIcon} size={18} color="#94A3B8" />
-                  <TextInput
-                      value={resetIdentifier}
-                      onChangeText={(text) => { setResetIdentifier(text); if(error) setError(''); }}
-                      style={styles.input}
-                      placeholder={t('enter_mobile_or_email')}
-                      autoFocus
-                  />
-              </View>
               {error && <Text style={styles.errorText}>{error}</Text>}
               <TouchableOpacity onPress={handleSendOtp} disabled={isSendingOtp} style={styles.button}>
                   {isSendingOtp ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{t('send_otp')}</Text>}
