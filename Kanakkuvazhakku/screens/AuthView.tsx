@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator, Button } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { ArrowRight, Smartphone, Lock, ArrowLeft, CheckCircle2, Fingerprint, User, Upload, Clock, Trash2 } from 'lucide-react-native';
 import { getLocalBackups, deleteLocalBackup, LocalBackup } from '../utils/storage';
+import { useTranslation } from 'react-i18next';
+
 // Mock functions and data for now - you'll replace these with your actual context/services
 const useData = () => ({
   login: async (id: string, pass: string) => { console.log('login', id, pass); return true; },
   startSignup: (id: string) => { console.log('signup', id); return true; },
   checkUserExists: (id: string) => { console.log('checkUserExists', id); return false; },
   resetPassword: (id: string, pass: string) => { console.log('resetPassword', id, pass); return true; },
-  t: (key: string) => key.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()), // Simple mock translation
   checkBiometricAvailability: (id: string) => { console.log('checkBiometric', id); return true; },
   verifyBiometricLogin: async (id: string) => { console.log('verifyBiometric', id); return true; },
   restoreUserFromBackup: async (file: unknown, pass: unknown) => { console.log('restore', file, pass); return true; },
   getLocalBackups: getLocalBackups, // Use actual function
   deleteLocalBackup: deleteLocalBackup, // Use actual function
 });
+
 // Mock OTPScreen
 const OTPScreen = ({ onVerify, onBack }: { onVerify: () => void, onBack: () => void }) => (
     <View style={styles.container}>
@@ -28,7 +30,8 @@ const OTPScreen = ({ onVerify, onBack }: { onVerify: () => void, onBack: () => v
 );
 type AuthScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main' | 'Terms'>;
 const AuthView: React.FC = () => {
-    const { login, startSignup, checkUserExists, resetPassword, t, checkBiometricAvailability, verifyBiometricLogin, getLocalBackups, deleteLocalBackup } = useData();
+    const { login, startSignup, checkUserExists, resetPassword, checkBiometricAvailability, verifyBiometricLogin, getLocalBackups, deleteLocalBackup } = useData();
+    const { t, i18n } = useTranslation();
     const [inputValue, setInputValue] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -196,21 +199,21 @@ const AuthView: React.FC = () => {
         return (
           <View style={styles.container}>
               <TouchableOpacity onPress={() => setViewState('login')} style={styles.forgotInputBackButton}><ArrowLeft size={24} color="#334155" /></TouchableOpacity>
-              <Text style={styles.title}>{t('Forgot Password')}</Text>
-              <Text style={styles.subtitle}>{t('Enter your identifier to reset password')}</Text>
+              <Text style={styles.title}>{t('forgot_password')}</Text>
+              <Text style={styles.subtitle}>{t('enter_your_identifier_to_reset_password')}</Text>
               <View style={styles.inputWrapper}>
                   <User style={styles.inputIcon} size={18} color="#94A3B8" />
                   <TextInput
                       value={resetIdentifier}
                       onChangeText={(text) => { setResetIdentifier(text); if(error) setError(''); }}
                       style={styles.input}
-                      placeholder={t('Enter mobile # or email')}
+                      placeholder={t('enter_mobile_or_email')}
                       autoFocus
                   />
               </View>
               {error && <Text style={styles.errorText}>{error}</Text>}
               <TouchableOpacity onPress={handleSendOtp} disabled={isSendingOtp} style={styles.button}>
-                  {isSendingOtp ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{t('Send OTP')}</Text>}
+                  {isSendingOtp ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{t('send_otp')}</Text>}
               </TouchableOpacity>
           </View>
         );
@@ -222,7 +225,7 @@ const AuthView: React.FC = () => {
         return (
           <View style={styles.container}>
               <TouchableOpacity onPress={() => setViewState('login')} style={styles.forgotInputBackButton}><ArrowLeft size={24} color="#334155" /></TouchableOpacity>
-              <Text style={styles.title}>{t('Reset Password')}</Text>
+              <Text style={styles.title}>{t('reset_password')}</Text>
               <View style={styles.inputWrapper}>
                   <Lock style={styles.inputIcon} size={18} color="#94A3B8" />
                   <TextInput
@@ -245,7 +248,7 @@ const AuthView: React.FC = () => {
               </View>
               {error && <Text style={styles.errorText}>{error}</Text>}
               <TouchableOpacity onPress={handleResetSubmit} style={styles.button}>
-                  <Text style={styles.buttonText}>{t('Reset Password')}</Text>
+                  <Text style={styles.buttonText}>{t('reset_password')}</Text>
               </TouchableOpacity>
           </View>
         );
@@ -257,8 +260,8 @@ const AuthView: React.FC = () => {
                    <View style={styles.successIconWrapper}>
                        <CheckCircle2 size={32} color="#22C55E" />
                    </View>
-                   <Text style={styles.title}>{t('Password Reset Successfully')}</Text>
-                   <Text style={styles.subtitle}>You can now login with your new password.</Text>
+                   <Text style={styles.title}>{t('password_reset_successfully')}</Text>
+                   <Text style={styles.subtitle}>{t('you_can_now_login_with_your_new_password')}</Text>
                    <TouchableOpacity 
                       onPress={() => {
                           setViewState('login');
@@ -269,7 +272,7 @@ const AuthView: React.FC = () => {
                       }}
                       style={styles.button}
                    >
-                       <Text style={styles.buttonText}>{t('Back to Login')}</Text>
+                       <Text style={styles.buttonText}>{t('back_to_login')}</Text>
                    </TouchableOpacity>
                </View>
            </View>
@@ -280,8 +283,12 @@ const AuthView: React.FC = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.innerContainer}>
           <View style={styles.mainTitleContainer}>
-              <Text style={styles.title}>{isNewUser ? t('Create Your Account') : t('Welcome')}</Text>
+              <Text style={styles.title}>{isNewUser ? t('create_your_account') : t('welcome')}</Text>
               <Text style={styles.subtitle}>{t('login_subtitle')}</Text>
+          </View>
+          <View style={styles.languageSwitcher}>
+            <Button title="English" onPress={() => i18n.changeLanguage('en')} />
+            <Button title="தமிழ்" onPress={() => i18n.changeLanguage('ta')} />
           </View>
   
           {isNewUser && (
@@ -290,12 +297,12 @@ const AuthView: React.FC = () => {
                       <View style={styles.backupBoxInner}>
                           <View style={styles.backupIconWrapper}><Upload size={20} color="#14B8A6" /></View>
                           <View>
-                              <Text style={styles.backupTitle}>{t('Already have a backup?')}</Text>
-                              <Text style={styles.backupSubtitle}>{t('Restore Account from .kbf file')}</Text>
+                              <Text style={styles.backupTitle}>{t('already_have_a_backup')}</Text>
+                              <Text style={styles.backupSubtitle}>{t('restore_account_from_kbf_file')}</Text>
                           </View>
                       </View>
                       <TouchableOpacity onPress={handleRestoreClick} disabled={isRestoring} style={styles.importButton}>
-                          {isRestoring ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.importButtonText}>{t('Import')}</Text>}
+                          {isRestoring ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.importButtonText}>{t('import')}</Text>}
                       </TouchableOpacity>
                   </View>
   
@@ -303,7 +310,7 @@ const AuthView: React.FC = () => {
                       <View>
                           <View style={styles.localBackupsHeaderContainer}>
                               <Smartphone size={14} color="#64748B" />
-                              <Text style={styles.localBackupHeader}>{t('Recent Device Backups')}</Text>
+                              <Text style={styles.localBackupHeader}>{t('recent_device_backups')}</Text>
                           </View>
                           <View style={styles.localBackupsList}>
                               {localBackups.map(backup => (
@@ -320,7 +327,7 @@ const AuthView: React.FC = () => {
                                               await deleteLocalBackup(backup.id);
                                               setLocalBackups(prev => prev.filter(b => b.id !== backup.id));
                                           }}><Trash2 size={16} color="#94A3B8" /></TouchableOpacity>
-                                          <TouchableOpacity onPress={() => Alert.alert("Restore", `Restore ${backup.id}?`)} style={styles.restoreButton}><Text style={styles.restoreButtonText}>{t('Restore')}</Text></TouchableOpacity>
+                                          <TouchableOpacity onPress={() => Alert.alert("Restore", `Restore ${backup.id}?`)} style={styles.restoreButton}><Text style={styles.restoreButtonText}>{t('restore')}</Text></TouchableOpacity>
                                       </View>
                                   </View>
                               ))}
@@ -331,13 +338,13 @@ const AuthView: React.FC = () => {
           )}
   
           <View>
-              <Text style={styles.label}>{t('Mobile Number or Email')}</Text>
+              <Text style={styles.label}>{t('mobile_number_or_email')}</Text>
               <View style={styles.inputWrapper}>
                   <User style={styles.inputIcon} size={18} color="#94A3B8" />
                   <TextInput
                       value={inputValue}
                       onChangeText={handleInputChange}
-                      placeholder={t('Enter mobile # or email')}
+                      placeholder={t('enter_mobile_or_email')}
                       style={[styles.input, error ? styles.inputError : {}]}
                       keyboardType="email-address"
                   />
@@ -346,7 +353,7 @@ const AuthView: React.FC = () => {
   
           {!isNewUser && (
               <View>
-                  <Text style={styles.label}>{t('Password')}</Text>
+                  <Text style={styles.label}>{t('password')}</Text>
                   <View style={styles.inputWrapper}>
                       <Lock style={styles.inputIcon} size={18} color="#94A3B8" />
                       <TextInput
@@ -363,7 +370,7 @@ const AuthView: React.FC = () => {
                       )}
                   </View>
                   <TouchableOpacity onPress={handleForgotPasswordClick} style={styles.forgotPasswordButton}>
-                      <Text style={styles.linkText}>{t('Forgot Password?')}</Text>
+                      <Text style={styles.linkText}>{t('forgot_password')}</Text>
                   </TouchableOpacity>
               </View>
           )}
@@ -371,19 +378,19 @@ const AuthView: React.FC = () => {
           {error && <Text style={styles.errorText}>{error}</Text>}
   
           <TouchableOpacity onPress={handleSubmit} style={styles.button}>
-              <Text style={styles.buttonText}>{isNewUser ? t('Get Started') : t('Login')}</Text>
+              <Text style={styles.buttonText}>{isNewUser ? t('get_started') : t('login')}</Text>
               {!isNewUser && <ArrowRight size={20} color="#fff" />}
           </TouchableOpacity>
   
           <TouchableOpacity onPress={toggleMode} style={styles.toggleModeButton}>
-              <Text style={styles.linkText}>{isNewUser ? t('Already have an account?') : t('Don\'t have an account?')}</Text>
+              <Text style={styles.linkText}>{isNewUser ? t('already_have_an_account') : t('dont_have_an_account')}</Text>
           </TouchableOpacity>
   
           <Text style={styles.termsText}>
-              {t('By continuing, you agree to our ')}
-              <Text onPress={onShowTerms} style={styles.linkText}>{t('Terms of Service')}</Text>
-              {t(' and ')}
-              <Text onPress={onShowTerms} style={styles.linkText}>{t('Privacy Policy')}</Text>.
+              {t('by_continuing_you_agree_to_our')}
+              <Text onPress={onShowTerms} style={styles.linkText}>{t('terms_of_service')}</Text>
+              {t('and')}
+              <Text onPress={onShowTerms} style={styles.linkText}>{t('privacy_policy')}</Text>.
           </Text>
         </View>
       </ScrollView>
@@ -501,6 +508,11 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '500',
         marginBottom: 8,
+    },
+    languageSwitcher: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginBottom: 16
     },
     linkText: {
         color: '#0D9488',
