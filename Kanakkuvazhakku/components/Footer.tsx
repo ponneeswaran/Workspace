@@ -10,18 +10,23 @@ import PropTypes from 'prop-types';
 // Assuming AddTransactionModal exists in the same components directory
 // import AddTransactionModal from './AddTransactionModal';
 
+import { Theme } from '../utils/theme';
+
 interface FooterProps {
   activeTab: string;
   orientation: 'portrait' | 'landscape';
+  theme: Theme;
 }
 
 type FooterNavigationProp = StackNavigationProp<RootStackParamList>;
 
-const Footer: React.FC<FooterProps> = ({ activeTab, orientation }) => {
+const Footer: React.FC<FooterProps> = ({ activeTab, orientation, theme }) => {
   const { t } = useTranslation();
   const navigation = useNavigation<FooterNavigationProp>();
 
-  const containerStyle = orientation === 'portrait' ? styles.containerPortrait : styles.containerLandscape;
+  const containerStyle = orientation === 'portrait'
+    ? [styles.containerPortrait, { backgroundColor: theme.colors.cardBackground, shadowColor: theme.colors.text }]
+    : [styles.containerLandscape, { backgroundColor: theme.colors.cardBackground, borderLeftColor: theme.colors.borderColor }];
   const tabButtonStyle = orientation === 'portrait' ? styles.tabButtonPortrait : styles.tabButtonLandscape;
 
   return (
@@ -33,10 +38,10 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation }) => {
       >
         <Home 
           size={24} 
-          strokeWidth={activeTab === 'dashboard' ? 2.5 : 2}
-          color={activeTab === 'dashboard' ? '#0D9488' : '#6B7280'} // teal-600 vs gray-400
+          strokeWidth={activeTab === 'Dashboard' ? 2.5 : 2}
+          color={activeTab === 'Dashboard' ? theme.colors.primary : theme.colors.secondary}
         />
-        <Text style={[styles.tabText, activeTab === 'dashboard' ? styles.activeTabText : styles.inactiveTabText]}>{t('Home')}</Text>
+        <Text style={[styles.tabText, activeTab === 'Dashboard' ? { color: theme.colors.primary } : { color: theme.colors.secondary }]}>{t('Home')}</Text>
       </TouchableOpacity>
 
       {/* History */}
@@ -46,16 +51,16 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation }) => {
       >
         <List 
           size={24} 
-          strokeWidth={activeTab === 'expenses' ? 2.5 : 2}
-          color={activeTab === 'expenses' ? '#0D9488' : '#6B7280'}
+          strokeWidth={activeTab === 'Expenses' ? 2.5 : 2}
+          color={activeTab === 'Expenses' ? theme.colors.primary : theme.colors.secondary}
         />
-        <Text style={[styles.tabText, activeTab === 'expenses' ? styles.activeTabText : styles.inactiveTabText]}>{t('History')}</Text>
+        <Text style={[styles.tabText, activeTab === 'Expenses' ? { color: theme.colors.primary } : { color: theme.colors.secondary }]}>{t('History')}</Text>
       </TouchableOpacity>
 
       {/* Center Add Button */}
       <View style={styles.addButtonContainer}>
         <TouchableOpacity 
-          style={styles.addButton}
+          style={[styles.addButton, { backgroundColor: theme.colors.primary, borderColor: theme.colors.background, shadowColor: theme.colors.text }]}
           accessibilityLabel="Add Transaction"
         >
           <Plus size={28} strokeWidth={2.5} color="#FFFFFF" />
@@ -69,10 +74,10 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation }) => {
       >
         <Wallet 
           size={24} 
-          strokeWidth={activeTab === 'income' ? 2.5 : 2}
-          color={activeTab === 'income' ? '#0D9488' : '#6B7280'}
+          strokeWidth={activeTab === 'Income' ? 2.5 : 2}
+          color={activeTab === 'Income' ? theme.colors.primary : theme.colors.secondary}
         />
-        <Text style={[styles.tabText, activeTab === 'income' ? styles.activeTabText : styles.inactiveTabText]}>{t('Income')}</Text>
+        <Text style={[styles.tabText, activeTab === 'Income' ? { color: theme.colors.primary } : { color: theme.colors.secondary }]}>{t('Income')}</Text>
       </TouchableOpacity>
 
       {/* Assistant */}
@@ -82,10 +87,10 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation }) => {
       >
         <Sparkles 
           size={24} 
-          strokeWidth={activeTab === 'ai' ? 2.5 : 2}
-          color={activeTab === 'ai' ? '#0D9488' : '#6B7280'}
+          strokeWidth={activeTab === 'Assistant' ? 2.5 : 2}
+          color={activeTab === 'Assistant' ? theme.colors.primary : theme.colors.secondary}
         />
-        <Text style={[styles.tabText, activeTab === 'ai' ? styles.activeTabText : styles.inactiveTabText]}>{t('Assistant')}</Text>
+        <Text style={[styles.tabText, activeTab === 'Assistant' ? { color: theme.colors.primary } : { color: theme.colors.secondary }]}>{t('Assistant')}</Text>
       </TouchableOpacity>
       
       {/* Add Transaction Modal - Placeholder */}
@@ -95,19 +100,14 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation }) => {
 };
 
 const styles = StyleSheet.create({
-  activeTabText: {
-    color: '#0D9488', // teal-600
-  },
+  activeTabText: {},
   addButton: {
     alignItems: 'center',
-    backgroundColor: '#0D9488',
-    borderColor: '#F8FAFC',
     borderRadius: 28,
     borderWidth: 4,
     elevation: 8,
     height: 56,
     justifyContent: 'center',
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
@@ -121,8 +121,6 @@ const styles = StyleSheet.create({
   },
   containerLandscape: {
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderLeftColor: '#E2E8F0',
     borderLeftWidth: 1,
     flexDirection: 'column',
     justifyContent: 'center',
@@ -131,9 +129,8 @@ const styles = StyleSheet.create({
   },
   containerPortrait: {
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     borderRadius: 30,
-    bottom: 20,
+    bottom: -10,
     elevation: 8,
     flexDirection: 'row',
     height: 60,
@@ -142,14 +139,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     position: 'absolute',
     right: 20,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
   },
-  inactiveTabText: {
-    color: '#6B7280', // gray-400
-  },
+  inactiveTabText: {},
   tabButtonLandscape: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -173,6 +167,7 @@ const styles = StyleSheet.create({
 Footer.propTypes = {
   activeTab: PropTypes.string.isRequired,
   orientation: PropTypes.oneOf(['portrait', 'landscape']).isRequired,
+  theme: PropTypes.object.isRequired,
 };
 
 export default Footer;

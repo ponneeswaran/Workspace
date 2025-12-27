@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useApp } from '../contexts/AppContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { lightTheme, darkTheme } from '../utils/theme';
 
 const languageData = [
   { label: 'English', value: 'en' },
@@ -20,6 +21,7 @@ const currencyData = [
 const ProfileSettingsView: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { state, dispatch } = useApp();
+  const theme = state.theme === 'light' ? lightTheme : darkTheme;
   const [selectedLanguage, setSelectedLanguage] = useState(i18n.language);
 
   const changeLanguage = (item: { value: string }) => {
@@ -47,13 +49,17 @@ const ProfileSettingsView: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{t('Profile Settings')}</Text>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Text style={[styles.title, { color: theme.colors.text }]}>{t('Profile Settings')}</Text>
 
-      <View style={styles.option}>
-        <Text style={styles.optionText}>{t('Language')}</Text>
+      <View style={[styles.option, { borderBottomColor: theme.colors.borderColor }]}>
+        <Text style={[styles.optionText, { color: theme.colors.text }]}>{t('Language')}</Text>
         <Dropdown
-          style={styles.dropdown}
+          style={[styles.dropdown, { backgroundColor: theme.colors.cardBackground }]}
+          placeholderStyle={{ color: theme.colors.text }}
+          selectedTextStyle={{ color: theme.colors.text }}
+          itemTextStyle={{ color: theme.colors.text }}
+          containerStyle={{ backgroundColor: theme.colors.cardBackground, borderColor: theme.colors.borderColor }}
           data={languageData}
           labelField="label"
           valueField="value"
@@ -62,10 +68,14 @@ const ProfileSettingsView: React.FC = () => {
         />
       </View>
 
-      <View style={styles.option}>
-        <Text style={styles.optionText}>{t('Currency')}</Text>
+      <View style={[styles.option, { borderBottomColor: theme.colors.borderColor }]}>
+        <Text style={[styles.optionText, { color: theme.colors.text }]}>{t('Currency')}</Text>
         <Dropdown
-          style={styles.dropdown}
+          style={[styles.dropdown, { backgroundColor: theme.colors.cardBackground }]}
+          placeholderStyle={{ color: theme.colors.text }}
+          selectedTextStyle={{ color: theme.colors.text }}
+          itemTextStyle={{ color: theme.colors.text }}
+          containerStyle={{ backgroundColor: theme.colors.cardBackground, borderColor: theme.colors.borderColor }}
           data={currencyData}
           labelField="label"
           valueField="value"
@@ -74,11 +84,13 @@ const ProfileSettingsView: React.FC = () => {
         />
       </View>
 
-      <View style={styles.option}>
-        <Text style={styles.optionText}>{t('Dark Mode')}</Text>
+      <View style={[styles.option, { borderBottomColor: theme.colors.borderColor }]}>
+        <Text style={[styles.optionText, { color: theme.colors.text }]}>{t('Dark Mode')}</Text>
         <Switch
           value={state.theme === 'dark'}
           onValueChange={toggleTheme}
+          thumbColor={state.theme === 'dark' ? theme.colors.primary : theme.colors.secondary}
+          trackColor={{ false: theme.colors.secondary, true: theme.colors.primary }}
         />
       </View>
     </View>
@@ -96,7 +108,6 @@ const styles = StyleSheet.create({
   },
   option: {
     alignItems: 'center',
-    borderBottomColor: '#e2e8f0',
     borderBottomWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -113,3 +124,4 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileSettingsView;
+

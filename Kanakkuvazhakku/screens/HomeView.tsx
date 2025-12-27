@@ -1,26 +1,29 @@
-// HomeView.tsx
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { User } from 'lucide-react-native';
+import { useApp } from '../contexts/AppContext';
+import { lightTheme, darkTheme } from '../utils/theme';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Profile'>;
 
 const HomeView: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const { state } = useApp();
+  const theme = state.theme === 'light' ? lightTheme : darkTheme;
 
   const onProfilePress = () => {
     navigation.navigate('Profile');
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Dashboard</Text>
-        <TouchableOpacity onPress={onProfilePress} style={styles.profileButton}>
-          <User size={24} color="#334155" />
+        <Text style={[styles.title, { color: theme.colors.text }]}>Dashboard</Text>
+        <TouchableOpacity onPress={onProfilePress} style={[styles.profileButton, { backgroundColor: theme.colors.borderColor }]}>
+          <User size={24} color={theme.colors.secondary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -39,7 +42,6 @@ const styles = StyleSheet.create({
   },
   profileButton: {
     alignItems: 'center',
-    backgroundColor: '#e2e8f0',
     borderRadius: 20,
     height: 40,
     justifyContent: 'center',
