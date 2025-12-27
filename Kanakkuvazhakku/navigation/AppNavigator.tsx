@@ -9,6 +9,7 @@ import HomeView from '../screens/HomeView';
 import HistoryView from '../screens/HistoryView';
 import ChatView from '../screens/ChatView';
 import TermsScreen from '../screens/TermsScreen';
+import RegistrationView from '../screens/RegistrationView';
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
@@ -18,6 +19,7 @@ export type RootStackParamList = {
   Onboarding: undefined;
   Main: undefined;
   Terms: undefined;
+  Registration: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -56,6 +58,7 @@ const RootNavigator: React.FC = () => (
       <Stack.Screen name="Onboarding" component={OnboardingView} />
       <Stack.Screen name="Main" component={MainTabs} />
       <Stack.Screen name="Terms" component={TermsScreen} />
+      <Stack.Screen name="Registration" component={RegistrationView} />
     </Stack.Navigator>
   </NavigationContainer>
 );

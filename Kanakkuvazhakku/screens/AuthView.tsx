@@ -56,7 +56,7 @@ const AuthView: React.FC = () => {
     // Mocks for web-specific features
     const onLoginSuccess = (identifier: string) => {
         console.log("Login success for:", identifier);
-        // navigation.navigate('Main'); // Or wherever you want to go
+        navigation.navigate('Main');
     };
     
     const onShowTerms = () => navigation.navigate('Terms');
@@ -111,7 +111,7 @@ const AuthView: React.FC = () => {
       if (isNewUser) {
           const success = startSignup(identifier);
           if (success) {
-              onLoginSuccess(identifier);
+              navigation.navigate('Registration');
           } else {
               setError(t('User already exists'));
           }

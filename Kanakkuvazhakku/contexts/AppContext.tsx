@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { Expense, Income, Budget, UserProfile } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface AppState {
   user: UserProfile | null;
@@ -49,13 +50,15 @@ function appReducer(state: AppState, action: AppAction): AppState {
 const AppContext = createContext<{
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
+  t: (key: string) => string;
 } | null>(null);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const { t } = useTranslation();
 
   return (
-    <AppContext.Provider value={{ state, dispatch }}>
+    <AppContext.Provider value={{ state, dispatch, t }}>
       {children}
     </AppContext.Provider>
   );
