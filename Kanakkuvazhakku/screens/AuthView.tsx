@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator, Button } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -31,7 +31,7 @@ const OTPScreen = ({ onVerify, onBack }: { onVerify: () => void, onBack: () => v
 type AuthScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main' | 'Terms'>;
 const AuthView: React.FC = () => {
     const { login, startSignup, checkUserExists, resetPassword, checkBiometricAvailability, verifyBiometricLogin, getLocalBackups, deleteLocalBackup } = useData();
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const [inputValue, setInputValue] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -286,10 +286,7 @@ const AuthView: React.FC = () => {
               <Text style={styles.title}>{isNewUser ? t('create_your_account') : t('welcome')}</Text>
               <Text style={styles.subtitle}>{t('login_subtitle')}</Text>
           </View>
-          <View style={styles.languageSwitcher}>
-            <Button title="English" onPress={() => i18n.changeLanguage('en')} />
-            <Button title="தமிழ்" onPress={() => i18n.changeLanguage('ta')} />
-          </View>
+
   
           {isNewUser && (
               <View style={styles.newUserContainer}>
@@ -508,11 +505,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '500',
         marginBottom: 8,
-    },
-    languageSwitcher: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginBottom: 16
     },
     linkText: {
         color: '#0D9488',

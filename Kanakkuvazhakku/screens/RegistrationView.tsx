@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { User, Mail, Phone, Globe, DollarSign, Check, ChevronRight, Lock } from 'lucide-react-native';
-import { Picker } from '@react-native-picker/picker';
+import { User, Mail, Phone, Globe, DollarSign, Check, Lock } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { Dropdown } from 'react-native-element-dropdown';
 
 type RegistrationScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Main'>;
 
@@ -23,6 +23,19 @@ const RegistrationView: React.FC = () => {
     const [showTooltip, setShowTooltip] = useState(false);
     
     const [errors, setErrors] = useState<{name?: string, mobile?: string, email?: string, password?: string, confirmPassword?: string}>({});
+
+    const languages = [
+        { label: 'English', value: 'en' },
+        { label: 'தமிழ்', value: 'ta' },
+    ];
+
+    const currencies = [
+        { label: 'INR (₹)', value: '₹' },
+        { label: 'USD ($)', value: '$' },
+        { label: 'EUR (€)', value: '€' },
+        { label: 'GBP (£)', value: '£' },
+        { label: 'JPY (¥)', value: '¥' },
+    ];
 
     const passwordChecks = {
         length: password.length >= 8,
@@ -174,36 +187,27 @@ const RegistrationView: React.FC = () => {
                     <View style={styles.pickerRow}>
                         <View style={styles.pickerGroup}>
                             <Text style={styles.label}>{t('Language')}</Text>
-                            <View style={styles.pickerContainer}>
-                                <Globe style={styles.pickerIcon} size={18} color="#94A3B8" />
-                                <Picker
-                                    selectedValue={language}
-                                    onValueChange={(itemValue) => setLanguage(itemValue)}
-                                    style={styles.picker}
-                                >
-                                    <Picker.Item label="English" value="en" />
-                                    <Picker.Item label="தமிழ்" value="ta" />
-                                </Picker>
-                                <ChevronRight style={styles.pickerChevron} size={16} color="#94A3B8" />
-                            </View>
+                            <Dropdown
+                                style={styles.dropdown}
+                                data={languages}
+                                labelField="label"
+                                valueField="value"
+                                value={language}
+                                onChange={(item: { label: string; value: string }) => setLanguage(item.value)}
+                                renderLeftIcon={() => <Globe style={styles.pickerIcon} size={18} color="#94A3B8" />}
+                            />
                         </View>
                         <View style={styles.pickerGroup}>
                             <Text style={styles.label}>{t('Currency')}</Text>
-                            <View style={styles.pickerContainer}>
-                                <DollarSign style={styles.pickerIcon} size={18} color="#94A3B8" />
-                                <Picker
-                                    selectedValue={currency}
-                                    onValueChange={(itemValue) => setCurrency(itemValue)}
-                                    style={styles.picker}
-                                >
-                                    <Picker.Item label="INR (₹)" value="₹" />
-                                    <Picker.Item label="USD ($)" value="$" />
-                                    <Picker.Item label="EUR (€)" value="€" />
-                                    <Picker.Item label="GBP (£)" value="£" />
-                                    <Picker.Item label="JPY (¥)" value="¥" />
-                                </Picker>
-                                <ChevronRight style={styles.pickerChevron} size={16} color="#94A3B8" />
-                            </View>
+                            <Dropdown
+                                style={styles.dropdown}
+                                data={currencies}
+                                labelField="label"
+                                valueField="value"
+                                value={currency}
+                                onChange={(item: { label: string; value: string }) => setCurrency(item.value)}
+                                renderLeftIcon={() => <DollarSign style={styles.pickerIcon} size={18} color="#94A3B8" />}
+                            />
                         </View>
                     </View>
 
@@ -236,6 +240,14 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#F8FAFC',
         flexGrow: 1,
+    },
+    dropdown: {
+        backgroundColor: '#FFFFFF',
+        borderColor: '#E2E8F0',
+        borderRadius: 12,
+        borderWidth: 1,
+        height: 50,
+        paddingHorizontal: 8,
     },
     errorText: {
         color: '#EF4444',
@@ -295,31 +307,11 @@ const styles = StyleSheet.create({
     passwordInputGroup: {
         flex: 1,
     },
-    picker: {
-        color: '#1E293B',
-    },
-    pickerChevron: {
-        position: 'absolute',
-        right: 12,
-        top: '50%',
-        transform: [{ translateY: -8 }],
-    },
-    pickerContainer: {
-        backgroundColor: '#FFFFFF',
-        borderColor: '#E2E8F0',
-        borderRadius: 12,
-        borderWidth: 1,
-        justifyContent: 'center',
-    },
     pickerGroup: {
         flex: 1,
     },
     pickerIcon: {
-        left: 12,
-        position: 'absolute',
-        top: '50%',
-        transform: [{ translateY: -9 }],
-        zIndex: 1,
+        marginRight: 10,
     },
     pickerRow: {
         flexDirection: 'row',
