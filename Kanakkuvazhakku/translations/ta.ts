@@ -49,5 +49,10 @@ export const translations = {
     'One special char ($!@#_&)': 'ஒரு சிறப்பு எழுத்து ($!@#_&)',
     'Language': 'மொழி',
     'Currency': 'நாணயம்',
-    'Get Started': 'தொடங்கவும்',
+    'Theme': 'கருப்பொருள்',
+    'Dark Mode': 'இருண்ட பயன்முறை',
+    'Home': 'முகப்பு',
+    'History': 'வரலாறு',
+    'Income': 'வருமானம்',
+    'Assistant': 'உதவியாளர்',
 };

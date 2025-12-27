@@ -49,5 +49,10 @@ export const translations = {
     'One special char ($!@#_&)': 'One special char ($!@#_&)',
     'Language': 'Language',
     'Currency': 'Currency',
-    'Get Started': 'Get Started',
+    'Theme': 'Theme',
+    'Dark Mode': 'Dark Mode',
+    'Home': 'Home',
+    'History': 'History',
+    'Income': 'Income',
+    'Assistant': 'Assistant',
 };

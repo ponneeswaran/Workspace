@@ -10,6 +10,7 @@ import ChatView from '../screens/ChatView';
 import TermsScreen from '../screens/TermsScreen';
 import RegistrationView from '../screens/RegistrationView';
 import MainLayout from '../components/MainLayout';
+import ProfileSettingsView from '../screens/ProfileSettingsView';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -21,6 +22,7 @@ export type RootStackParamList = {
   Assistant: undefined;
   Terms: undefined;
   Registration: { identifier: string };
+  Profile: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -42,6 +44,11 @@ const AssistantScreen = () => (
     <ChatView />
   </MainLayout>
 );
+const ProfileSettingsScreen = () => (
+  <MainLayout>
+    <ProfileSettingsView />
+  </MainLayout>
+);
 
 const RootNavigator: React.FC = () => (
   <NavigationContainer>
@@ -54,6 +61,7 @@ const RootNavigator: React.FC = () => (
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
       <Stack.Screen name="Expenses" component={ExpensesScreen} />
       <Stack.Screen name="Assistant" component={AssistantScreen} />
+      <Stack.Screen name="Profile" component={ProfileSettingsScreen} />
     </Stack.Navigator>
   </NavigationContainer>
 );

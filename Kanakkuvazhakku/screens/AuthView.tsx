@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, StackActions } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { ArrowRight, Smartphone, Lock, ArrowLeft, CheckCircle2, Fingerprint, User, Clock, Trash2 } from 'lucide-react-native';
@@ -53,7 +53,7 @@ const AuthView: React.FC = () => {
     // Mocks for web-specific features
     const onLoginSuccess = (identifier: string) => {
         console.log("Login success for:", identifier);
-        navigation.navigate('Dashboard');
+        navigation.dispatch(StackActions.replace('Dashboard'));
     };
     
     const onShowTerms = () => navigation.navigate('Terms');

@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { Expense, Income, Budget, UserProfile } from '../types';
-import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AppState {
   user: UserProfile | null;
@@ -8,6 +8,8 @@ interface AppState {
   incomes: Income[];
   budgets: Budget[];
   isAuthenticated: boolean;
+  theme: 'light' | 'dark';
+  currency: string;
 }
 
 type AppAction =
@@ -16,7 +18,9 @@ type AppAction =
   | { type: 'ADD_INCOME'; payload: Income }
   | { type: 'UPDATE_BUDGET'; payload: Budget }
   | { type: 'SET_AUTHENTICATED'; payload: boolean }
-  | { type: 'LOAD_DATA'; payload: { expenses: Expense[]; incomes: Income[]; budgets: Budget[] } };
+  | { type: 'LOAD_DATA'; payload: { expenses: Expense[]; incomes: Income[]; budgets: Budget[] } }
+  | { type: 'SET_THEME'; payload: 'light' | 'dark' }
+  | { type: 'SET_CURRENCY'; payload: string };
 
 const initialState: AppState = {
   user: null,
@@ -24,6 +28,8 @@ const initialState: AppState = {
   incomes: [],
   budgets: [],
   isAuthenticated: false,
+  theme: 'light',
+  currency: 'USD',
 };
 
 function appReducer(state: AppState, action: AppAction): AppState {
@@ -42,6 +48,10 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, isAuthenticated: action.payload };
     case 'LOAD_DATA':
       return { ...state, ...action.payload };
+    case 'SET_THEME':
+      return { ...state, theme: action.payload };
+    case 'SET_CURRENCY':
+      return { ...state, currency: action.payload };
     default:
       return state;
   }
@@ -50,15 +60,33 @@ function appReducer(state: AppState, action: AppAction): AppState {
 const AppContext = createContext<{
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
-  t: (key: string) => string;
 } | null>(null);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
-  const { t } = useTranslation();
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const theme = await AsyncStorage.getItem('theme');
+        const currency = await AsyncStorage.getItem('currency');
+
+        if (theme) {
+          dispatch({ type: 'SET_THEME', payload: theme as 'light' | 'dark' });
+        }
+        if (currency) {
+          dispatch({ type: 'SET_CURRENCY', payload: currency });
+        }
+      } catch (error) {
+        console.error('Failed to load settings', error);
+      }
+    };
+
+    loadSettings();
+  }, []);
 
   return (
-    <AppContext.Provider value={{ state, dispatch, t }}>
+    <AppContext.Provider value={{ state, dispatch }}>
       {children}
     </AppContext.Provider>
   );
