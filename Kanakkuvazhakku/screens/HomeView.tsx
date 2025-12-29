@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { useAuth } from '../utils/useAuth';
 import { User } from 'lucide-react-native';
 import { useApp } from '../contexts/AppContext';
 import { lightTheme, darkTheme } from '../utils/theme';
@@ -18,10 +19,16 @@ const HomeView: React.FC = () => {
     navigation.navigate('Profile');
   };
 
+  const { storedUser } = useAuth();
+  const userName = storedUser?.name || 'Guest';
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.colors.text }]}>Dashboard</Text>
+        <View>
+          <Text style={[styles.title, { color: theme.colors.text }]}>Ledger Summary</Text>
+          <Text style={[styles.subtitle, { color: theme.colors.text }]}>Welcome, {userName}</Text>
+        </View>
         <TouchableOpacity onPress={onProfilePress} style={[styles.profileButton, { backgroundColor: theme.colors.borderColor }]}>
           <User size={24} color={theme.colors.secondary} />
         </TouchableOpacity>
@@ -46,6 +53,9 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     width: 40,
+  },
+  subtitle: {
+    fontSize: 16,
   },
   title: {
     fontSize: 24,

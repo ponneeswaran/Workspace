@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useApp } from '../contexts/AppContext';
+import { User } from 'phosphor-react-native';
 
 type OnboardingScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Onboarding'>;
 
 const OnboardingView: React.FC = () => {
   const navigation = useNavigation<OnboardingScreenNavigationProp>();
+  const { colors } = useTheme();
+  const theme = useTheme();
+
+  const onProfilePress = () => {
+    navigation.navigate('Profile');
+  };
   const [name, setName] = useState('');
   const [currency, setCurrency] = useState('INR');
   const [language, setLanguage] = useState<'EN' | 'TA'>('EN');
@@ -23,9 +30,16 @@ const OnboardingView: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Kanakkuvazhakku</Text>
-      <Text style={styles.subtitle}>Let&apos;s set up your profile</Text>
+    <View style={[styles.outerContainer, { backgroundColor: theme.colors.background }]}>
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: colors.text }]}>Onboarding</Text>
+        <TouchableOpacity onPress={onProfilePress} style={[styles.profileButton, { backgroundColor: colors.border }]}>
+          <User size={24} color={colors.text} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.container}>
+        <Text style={[styles.mainTitle, { color: colors.text }]}>Welcome to Kanakkuvazhakku</Text>
+        <Text style={[styles.subtitle, { color: colors.text }]}>Let&apos;s set up your profile</Text>
       <TextInput
         style={styles.input}
         placeholder="Your Name"
@@ -59,6 +73,7 @@ const OnboardingView: React.FC = () => {
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
     </View>
+  </View>
   );
 };
 
@@ -80,6 +95,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
   },
+  header: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
   input: {
     backgroundColor: '#FFFFFF',
     borderColor: '#0D9488',
@@ -93,6 +114,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 5,
   },
+  mainTitle: {
+    color: '#0F766E',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  outerContainer: {
+    flex: 1,
+  },
   picker: {
     backgroundColor: '#FFFFFF',
     borderColor: '#0D9488',
@@ -101,6 +132,13 @@ const styles = StyleSheet.create({
   pickerContainer: {
     marginBottom: 10,
   },
+  profileButton: {
+    alignItems: 'center',
+    borderRadius: 20,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
   subtitle: {
     color: '#0D9488',
     fontSize: 16,
@@ -108,11 +146,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   title: {
-    color: '#0F766E',
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center',
   },
 });
 

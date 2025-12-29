@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator } from 'react-native';
-import { useNavigation, StackActions, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, StackActions, useFocusEffect, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -19,7 +19,6 @@ const OTPScreen = ({ onVerify, onBack }: { onVerify: () => void, onBack: () => v
         <TouchableOpacity style={styles.button} onPress={onVerify}><Text style={styles.buttonText}>Verify OTP</Text></TouchableOpacity>
     </View>
 );
-type AuthScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Dashboard' | 'Terms'>;
 const AuthView: React.FC = () => {
     useFocusEffect(
         useCallback(() => {
@@ -34,6 +33,12 @@ const AuthView: React.FC = () => {
     );
 
     const { login, checkUserExists, getLocalBackups, deleteLocalBackup } = useAuth();
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+    const theme = useTheme();
+
+    const onProfilePress = () => {
+        navigation.navigate('Profile');
+    };
     // The following are mock functions that are not yet in the useAuth hook.
     // They will need to be implemented or removed.
     
@@ -60,8 +65,6 @@ const AuthView: React.FC = () => {
     // Backup Restore State
     const [isRestoring] = useState(false);
     const [localBackups, setLocalBackups] = useState<LocalBackup[]>([]);
-  
-    const navigation = useNavigation<AuthScreenNavigationProp>();
     
     // Mocks for web-specific features
     const onLoginSuccess = (identifier: string) => {
@@ -304,12 +307,19 @@ const AuthView: React.FC = () => {
     }
   
     return (
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.innerContainer}>
-          <View style={styles.mainTitleContainer}>
-              <Text style={styles.title}>{isNewUser ? t('create_your_account') : t('welcome')}</Text>
-              <Text style={styles.subtitle}>{t('login_subtitle')}</Text>
-          </View>
+        <View style={[styles.outerContainer, { backgroundColor: theme.colors.background }]}>
+            <View style={styles.header}>
+                <Text style={[styles.title, { color: theme.colors.text }]}>Auth</Text>
+                <TouchableOpacity onPress={onProfilePress} style={[styles.profileButton, { backgroundColor: theme.colors.border }]}>
+                    <User size={24} color={theme.colors.text} />
+                </TouchableOpacity>
+            </View>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <View style={[styles.innerContainer, { backgroundColor: theme.colors.background }]}>
+                    <View style={styles.mainTitleContainer}>
+                        <Text style={styles.title}>{isNewUser ? t('create_your_account') : t('welcome')}</Text>
+                        <Text style={styles.subtitle}>{t('login_subtitle')}</Text>
+                    </View>
 
   
           {isNewUser && (
@@ -415,7 +425,8 @@ const AuthView: React.FC = () => {
           </Text>
         </View>
       </ScrollView>
-    );
+    </View>
+  );
 };
 const styles = StyleSheet.create({
     backupBox: {
@@ -486,6 +497,12 @@ const styles = StyleSheet.create({
     forgotPasswordButton: {
         alignSelf: 'flex-end',
         marginTop: 8,
+    },
+    header: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 16,
     },
     importButton: {
         backgroundColor: '#0D9488',
@@ -598,6 +615,16 @@ const styles = StyleSheet.create({
     otpBackButton: {
         alignSelf: 'flex-start',
         padding: 8,
+    },
+    outerContainer: {
+        flex: 1,
+    },
+    profileButton: {
+        alignItems: 'center',
+        borderRadius: 20,
+        height: 40,
+        justifyContent: 'center',
+        width: 40,
     },
     restoreButton: {
         backgroundColor: '#F1F5F9',

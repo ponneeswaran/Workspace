@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, useWindowDimensions } from 'react-native';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { useNavigation, useTheme } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
+import { User } from 'phosphor-react-native';
 
-// Note: In real app, get API key securely
-const genAI = new GoogleGenerativeAI('YOUR_API_KEY');
+import { GOOGLE_API_KEY } from '@env';
+
+const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
 
 interface Message {
   id: string;
@@ -44,15 +49,32 @@ const ChatView: React.FC = () => {
     </View>
   );
 
+  const { width, height } = useWindowDimensions();
+  const isPortrait = height > width;
+  const inputContainerBottom = isPortrait ? 55 : 0;
+
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { colors } = useTheme();
+
+  const onProfilePress = () => {
+    navigation.navigate('Profile');
+  };
+
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: colors.text }]}>AI Assistant</Text>
+        <TouchableOpacity onPress={onProfilePress} style={[styles.profileButton, { backgroundColor: colors.border }]}>
+          <User size={24} color={colors.text} />
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={messages}
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}
         style={styles.messagesList}
       />
-      <View style={styles.inputContainer}>
+      <View style={[styles.inputContainer, { bottom: inputContainerBottom }]}>
         <TextInput
           style={styles.input}
           value={input}
@@ -78,6 +100,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
     flex: 1,
   },
+  header: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
   input: {
     borderColor: '#0D9488',
     borderRadius: 20,
@@ -89,6 +117,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     backgroundColor: '#FFFFFF',
+    bottom: 55,
     flexDirection: 'row',
     padding: 10,
   },
@@ -105,6 +134,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
+  profileButton: {
+    alignItems: 'center',
+    borderRadius: 20,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
   sendButton: {
     backgroundColor: '#0F766E',
     borderRadius: 20,
@@ -114,6 +150,10 @@ const styles = StyleSheet.create({
   },
   sendButtonText: {
     color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  title: {
+    fontSize: 24,
     fontWeight: 'bold',
   },
   userMessage: {

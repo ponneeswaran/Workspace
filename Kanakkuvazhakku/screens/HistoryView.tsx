@@ -1,10 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { useNavigation, useTheme } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
+import { User } from 'phosphor-react-native';
 import { useApp } from '../contexts/AppContext';
 import { Transaction } from '../types';
 
 const HistoryView: React.FC = () => {
   const { state } = useApp();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { colors } = useTheme();
+  const theme = useTheme();
+
+  const onProfilePress = () => {
+    navigation.navigate('Profile');
+  };
 
   const transactions: Transaction[] = [...state.expenses, ...state.incomes].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -23,7 +34,13 @@ const HistoryView: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: colors.text }]}>History</Text>
+        <TouchableOpacity onPress={onProfilePress} style={[styles.profileButton, { backgroundColor: colors.border }]}>
+          <User size={24} color={colors.text} />
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={transactions}
         renderItem={renderItem}
@@ -53,6 +70,12 @@ const styles = StyleSheet.create({
   expense: {
     color: '#EF4444',
   },
+  header: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
   income: {
     color: '#10B981',
   },
@@ -65,6 +88,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginVertical: 5,
     padding: 15,
+  },
+  profileButton: {
+    alignItems: 'center',
+    borderRadius: 20,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
   },
 });
 

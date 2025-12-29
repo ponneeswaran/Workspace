@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator'; // Adjust path as needed
 import { useTranslation } from 'react-i18next';
-import PropTypes from 'prop-types';
 
 // Assuming AddTransactionModal exists in the same components directory
 // import AddTransactionModal from './AddTransactionModal';
@@ -163,11 +162,5 @@ const styles = StyleSheet.create({
   },
 
 });
-
-Footer.propTypes = {
-  activeTab: PropTypes.string.isRequired,
-  orientation: PropTypes.oneOf(['portrait', 'landscape']).isRequired,
-  theme: PropTypes.object.isRequired,
-};
 
 export default Footer;
