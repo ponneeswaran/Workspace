@@ -127,6 +127,7 @@ const AppContext = createContext<{
   addExpense: (expense: Omit<Expense, 'id' | 'createdAt'>) => void;
   addIncomeSmart: (income: Omit<Income, 'id' | 'createdAt' | 'status'>) => void;
   addChatMessage: (msg: ChatMessage) => void;
+  updateBudget: (budget: Budget) => void;
   deleteExpense: (id: string) => void;
   restoreExpense: (expense: Expense) => void;
   updateIncome: (income: Income) => void;
@@ -248,12 +249,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     dispatch({ type: 'RESTORE_INCOME', payload: income });
   };
 
+  const updateBudget = (budget: Budget) => {
+    dispatch({ type: 'UPDATE_BUDGET', payload: budget });
+  };
+
   const addChatMessage = (msg: ChatMessage) => {
     dispatch({ type: 'ADD_CHAT_MESSAGE', payload: msg });
   };
 
   return (
-    <AppContext.Provider value={{ state, dispatch, addExpense, addIncomeSmart, addChatMessage, deleteExpense, restoreExpense, updateIncome, deleteIncome, restoreIncome }}>
+    <AppContext.Provider value={{ state, dispatch, addExpense, addIncomeSmart, addChatMessage, updateBudget, deleteExpense, restoreExpense, updateIncome, deleteIncome, restoreIncome }}>
       {children}
     </AppContext.Provider>
   );

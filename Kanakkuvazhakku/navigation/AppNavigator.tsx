@@ -14,6 +14,8 @@ import ProfileSettingsView from '../screens/ProfileSettingsView';
 import ProfileEditView from '../screens/ProfileEditView';
 import AccountView from '../screens/AccountView';
 import IncomeView from '../screens/IncomeView';
+import BudgetView from '../screens/BudgetView';
+import CategoryExpensesView from '../screens/CategoryExpensesView';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -22,6 +24,8 @@ export type RootStackParamList = {
   Dashboard: undefined;
   Expenses: undefined;
   Income: undefined;
+  Budget: undefined;
+  CategoryExpenses: { category: string };
   Assistant: undefined;
   Terms: undefined;
   Registration: { identifier: string };
@@ -59,6 +63,11 @@ const IncomeScreen = () => (
     <IncomeView />
   </MainLayout>
 );
+const BudgetScreen = () => (
+  <MainLayout>
+    <BudgetView />
+  </MainLayout>
+);
 
 const RootNavigator: React.FC = () => (
   <NavigationContainer>
@@ -71,6 +80,8 @@ const RootNavigator: React.FC = () => (
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
       <Stack.Screen name="Expenses" component={ExpensesScreen} />
       <Stack.Screen name="Income" component={IncomeScreen} />
+      <Stack.Screen name="Budget" component={BudgetScreen} />
+      <Stack.Screen name="CategoryExpenses" component={CategoryExpensesView} />
       <Stack.Screen name="Assistant" component={AssistantScreen} />
       <Stack.Screen name="Profile" component={ProfileSettingsScreen} />
       <Stack.Screen name="ProfileEdit" component={ProfileEditView} />

@@ -1,5 +1,8 @@
 import React, { useMemo, useState, useRef } from 'react';
 import { View, Text, StyleSheet, SectionList, TouchableOpacity, TextInput } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
+import type { RootStackParamList } from '../navigation/AppNavigator';
 import { useApp } from '../contexts/AppContext';
 import { Category, Transaction, Expense, Income } from '../types';
 import { Trash, Search } from 'lucide-react-native';
@@ -8,6 +11,7 @@ import TransactionDetailsModal from './TransactionDetailsModal';
 const CATEGORY_PILLS: (Category | 'All')[] = ['All','Food','Transport','Entertainment','Utilities','Healthcare','Shopping','Housing','Other'];
 
 export default function ExpenseList() {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { state, deleteExpense, deleteIncome, restoreExpense, restoreIncome } = useApp();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -103,7 +107,12 @@ export default function ExpenseList() {
 
       <View style={styles.pillsRow}>
         {CATEGORY_PILLS.map(c => (
-          <TouchableOpacity key={c} onPress={() => setSelectedCategory(c)} style={[styles.pill, selectedCategory === c && styles.pillActive]}>
+          <TouchableOpacity
+            key={c}
+            onPress={() => setSelectedCategory(c)}
+            onLongPress={() => navigation.navigate('CategoryExpenses', { category: c })}
+            style={[styles.pill, selectedCategory === c && styles.pillActive]}
+          >
             <Text style={selectedCategory === c ? styles.pillTextActive : styles.pillText}>{c}</Text>
           </TouchableOpacity>
         ))}

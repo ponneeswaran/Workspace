@@ -57,6 +57,7 @@ export const translations = {
 
 'Expense': 'செலவு',
 'Income': 'வருமானம்',
+'Category Details': 'வகை விவரங்கள்',
 'Magic Fill with AI': 'ஏ.ஐ உடன் மாயாஜால் பூர்த்தி',
 'magic_fill_placeholder': 'உதா: மதிய உணவு 120 UPI அல்லது வாடகை 5000 John-ல் இருந்து',
 'Amount': 'தொகை',
@@ -71,6 +72,10 @@ export const translations = {
 'Source': 'மூலம்',
 'Tenant Mobile': 'வாடகையாளர் மொபைல்',
 'Recurrence': 'மீண்டும்',
+'Budgets': 'பட்ஜெட்டுகள்',
+'Manage': 'இயக்கி',
+'Edit Budget': 'பட்ஜெட்டை திருத்தவும்',
+'Budget saved': 'பட்ஜெட் சேமிக்கப்பட்டது',
 'valid_amount_required': 'சரியான தொகை தேவை',
 'description_required': 'விவரம் தேவை',
 'source_required': 'மூலம் தேவை',

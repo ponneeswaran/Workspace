@@ -102,6 +102,18 @@ const ProfileSettingsView: React.FC = () => {
           trackColor={{ false: theme.colors.secondary, true: theme.colors.primary }}
         />
       </View>
+
+      <View style={[styles.option, { borderBottomColor: theme.colors.borderColor }]}>
+        <Text style={[styles.optionText, { color: theme.colors.text }]}>{t('Budgets')}</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Budget')}
+          style={styles.manageButton}
+          accessibilityRole="button"
+          accessibilityLabel={t('Manage budgets')}
+        >
+          <Text style={[styles.manageText, { color: theme.colors.primary }]}>{t('Manage')}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -118,6 +130,8 @@ const styles = StyleSheet.create({
   headerAction: { padding: 8 },
   headerActionText: { fontWeight: '700' },
   headerRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
+  manageButton: { padding: 8 },
+  manageText: { fontWeight: '700' },
   option: {
     alignItems: 'center',
     borderBottomWidth: 1,

@@ -57,6 +57,7 @@ export const translations = {
 
 'Expense': 'Expense',
 'Income': 'Income',
+'Category Details': 'Category Details',
 'Magic Fill with AI': 'Magic Fill with AI',
 'magic_fill_placeholder': 'e.g. Lunch 120 UPI or Rent 5000 from John',
 'Amount': 'Amount',
@@ -65,6 +66,10 @@ export const translations = {
 'Category': 'Category',
 'Date': 'Date',
 'Payment Method': 'Payment Method',
+'Budgets': 'Budgets',
+'Manage': 'Manage',
+'Edit Budget': 'Edit Budget',
+'Budget saved': 'Budget saved',
 'Save Expense': 'Save Expense',
 'Save Income': 'Save Income',
 'Tenant Name': 'Tenant Name',
