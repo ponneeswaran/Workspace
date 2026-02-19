@@ -14,6 +14,7 @@ This repository contains an Expo React Native application (Kanakkuvazhakku) plus
 - Directory check: always run client commands from `Kanakkuvazhakku/` (cd there first).
 - Start the app: cd into `Kanakkuvazhakku` then run `npx expo start`.
 - Layout & safe-area: use `components/MainLayout.tsx` to wrap screens so they respect device safe areas (dynamic island / status bar). For standalone screens (Auth, Registration, Onboarding) pass `showFooter={false}` to hide the bottom footer while retaining safe-area insets.
+- UI & component changes: when updating UI (e.g. `AddTransactionModal`, `ProfileEditView`, `Footer`) verify visual parity on iOS and Android, include screenshots in your commit/PR, and add a small unit/e2e test for behavioral changes where possible. Note: `AddTransactionModal` now surfaces categories as visible chips (with a Picker fallback) — verify chips are tappable and the Picker reflects the selected value.
 - Start the local proxy (if needed): `npm run start:proxy` (run from `Kanakkuvazhakku`).
 - Typecheck / lint / tests (run before pushing):
   - TypeScript: `npx tsc --noEmit`

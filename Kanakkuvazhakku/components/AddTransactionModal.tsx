@@ -50,6 +50,7 @@ export default function AddTransactionModal({ visible, onClose, initialTab = 'ex
 
   // wheel pickers
   const [showCategoryWheel, setShowCategoryWheel] = useState(false);
+  const [showIncomeCategoryWheel, setShowIncomeCategoryWheel] = useState(false);
 
   const resetState = () => {
     setExpAmount(''); setExpCategory('Food'); setExpDesc(''); setExpDate(todayIso()); setExpPaymentMethod('UPI'); setExpErrors({});
@@ -301,11 +302,33 @@ export default function AddTransactionModal({ visible, onClose, initialTab = 'ex
                 <View style={styles.row2}>
                   <View style={styles.col}>
                     <Text style={styles.label}>{t('Category') || 'Category'}</Text>
-                    <View style={styles.pickerWrap}>
-                      <Picker selectedValue={incCategory} onValueChange={(v) => setIncCategory(v as IncomeCategory)}>
-                        {INCOME_CATEGORIES.map(c => <Picker.Item key={c} label={c} value={c} />)}
-                      </Picker>
-                    </View>
+
+                    <TouchableOpacity
+                      onPress={() => setShowIncomeCategoryWheel(true)}
+                      style={styles.dateButton}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Select category, ${incCategory}`}
+                    >
+                      <Text style={{ color: '#111827' }}>{incCategory}</Text>
+                    </TouchableOpacity>
+
+                    <Modal visible={showIncomeCategoryWheel} transparent animationType="slide" onRequestClose={() => setShowIncomeCategoryWheel(false)}>
+                      <View style={styles.backdrop}>
+                        <View style={[styles.sheet, { maxHeight: 260, paddingBottom: 0 }]}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12 }}>
+                            <TouchableOpacity onPress={() => setShowIncomeCategoryWheel(false)} accessibilityRole="button"><Text style={{ color: '#6b7280' }}>Cancel</Text></TouchableOpacity>
+                            <Text style={styles.modalTitle}>{t('Category') || 'Category'}</Text>
+                            <TouchableOpacity onPress={() => setShowIncomeCategoryWheel(false)} accessibilityRole="button"><Text style={{ color: '#0d9488', fontWeight: '700' }}>Done</Text></TouchableOpacity>
+                          </View>
+                          <View style={{ borderTopWidth: 1, borderColor: '#e6e9ee', backgroundColor: '#fff' }}>
+                            <Picker selectedValue={incCategory} onValueChange={(v) => setIncCategory(v as IncomeCategory)} style={{ height: 220 }} itemStyle={{ fontSize: 18, height: 200 }} mode={Platform.OS === 'ios' ? 'dialog' : 'dropdown'}>
+                              {INCOME_CATEGORIES.map(c => <Picker.Item key={c} label={c} value={c} />)}
+                            </Picker>
+                          </View>
+                        </View>
+                      </View>
+                    </Modal>
+
                   </View>
                   <View style={styles.colRight}>
                     <Text style={styles.label}>{t('Date') || 'Date'}</Text>

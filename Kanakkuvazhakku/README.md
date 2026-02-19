@@ -19,5 +19,6 @@ Before you commit and push any change, run these and fix failures:
 - Run `npm run lint` and address lint warnings/errors
 - Run `npm test` and ensure tests pass (or add tests for new logic)
 - Confirm the app still runs locally (`npx expo start`) when applicable
+- UI verification: for visual or layout changes (Add Transaction modal, Profile screens, Footer), check the UI on iOS and Android, ensure safe-area/dynamic-island spacing is correct, and include screenshots or a short e2e test for regressions. Specifically verify `Add Transaction` shows category chips and that the platform `Picker` stays synchronized with chip selection.
 
 > NOTE: By default commit changes directly to the `main` branch for small fixes. Create a feature branch and open a PR only for large/risky changes or when you request code review.

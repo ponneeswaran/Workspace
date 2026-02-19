@@ -62,7 +62,7 @@ export default function DatePicker({ dateIso, onChange, style }: Props) {
         <DateTimePicker
           value={isoToDate(dateIso)}
           mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display={'spinner'}
           onChange={handleChange}
         />
       )}
