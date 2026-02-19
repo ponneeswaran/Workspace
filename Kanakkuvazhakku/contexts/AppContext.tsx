@@ -20,6 +20,7 @@ type AppAction =
   | { type: 'RESTORE_EXPENSE'; payload: Expense }
   | { type: 'ADD_INCOME'; payload: Income }
   | { type: 'ADD_INCOMES'; payload: Income[] }
+  | { type: 'UPDATE_INCOME'; payload: Income }
   | { type: 'DELETE_INCOME'; payload: string }
   | { type: 'RESTORE_INCOME'; payload: Income }
   | { type: 'ADD_CHAT_MESSAGE'; payload: ChatMessage }
@@ -88,6 +89,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, incomes: [action.payload, ...state.incomes] };
     case 'ADD_INCOMES':
       return { ...state, incomes: [...action.payload, ...state.incomes] };
+    case 'UPDATE_INCOME':
+      return { ...state, incomes: state.incomes.map(i => i.id === action.payload.id ? action.payload : i) };
     case 'DELETE_INCOME':
       return { ...state, incomes: state.incomes.filter(i => i.id !== action.payload) };
     case 'RESTORE_INCOME':
@@ -126,6 +129,7 @@ const AppContext = createContext<{
   addChatMessage: (msg: ChatMessage) => void;
   deleteExpense: (id: string) => void;
   restoreExpense: (expense: Expense) => void;
+  updateIncome: (income: Income) => void;
   deleteIncome: (id: string) => void;
   restoreIncome: (income: Income) => void;
 } | null>(null);
@@ -232,6 +236,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     dispatch({ type: 'ADD_INCOMES', payload: entries });
   };
 
+  const updateIncome = (income: Income) => {
+    dispatch({ type: 'UPDATE_INCOME', payload: income });
+  };
+
   const deleteIncome = (id: string) => {
     dispatch({ type: 'DELETE_INCOME', payload: id });
   };
@@ -245,7 +253,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   return (
-    <AppContext.Provider value={{ state, dispatch, addExpense, addIncomeSmart, addChatMessage, deleteExpense, restoreExpense, deleteIncome, restoreIncome }}>
+    <AppContext.Provider value={{ state, dispatch, addExpense, addIncomeSmart, addChatMessage, deleteExpense, restoreExpense, updateIncome, deleteIncome, restoreIncome }}>
       {children}
     </AppContext.Provider>
   );

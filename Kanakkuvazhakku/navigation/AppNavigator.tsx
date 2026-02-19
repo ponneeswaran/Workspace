@@ -13,6 +13,7 @@ import MainLayout from '../components/MainLayout';
 import ProfileSettingsView from '../screens/ProfileSettingsView';
 import ProfileEditView from '../screens/ProfileEditView';
 import AccountView from '../screens/AccountView';
+import IncomeView from '../screens/IncomeView';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -53,6 +54,11 @@ const ProfileSettingsScreen = () => (
     <ProfileSettingsView />
   </MainLayout>
 );
+const IncomeScreen = () => (
+  <MainLayout>
+    <IncomeView />
+  </MainLayout>
+);
 
 const RootNavigator: React.FC = () => (
   <NavigationContainer>
@@ -64,7 +70,7 @@ const RootNavigator: React.FC = () => (
       <Stack.Screen name="Registration" component={RegistrationView} />
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
       <Stack.Screen name="Expenses" component={ExpensesScreen} />
-      <Stack.Screen name="Income" component={ExpensesScreen} />
+      <Stack.Screen name="Income" component={IncomeScreen} />
       <Stack.Screen name="Assistant" component={AssistantScreen} />
       <Stack.Screen name="Profile" component={ProfileSettingsScreen} />
       <Stack.Screen name="ProfileEdit" component={ProfileEditView} />
