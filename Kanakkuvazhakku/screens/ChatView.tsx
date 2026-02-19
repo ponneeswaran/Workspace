@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, useWindowDimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -16,7 +16,11 @@ interface Message {
   isUser: boolean;
 }
 
-const ChatView: React.FC = () => {
+interface ChatViewProps {
+  footerHeight?: number;
+}
+
+const ChatView: React.FC<ChatViewProps> = ({ footerHeight = 0 }) => {
   const [messages, setMessages] = useState<Message[]>([
     { id: '1', text: 'Hello! How can I help you with your finances?', isUser: false },
   ]);
@@ -49,10 +53,6 @@ const ChatView: React.FC = () => {
     </View>
   );
 
-  const { width, height } = useWindowDimensions();
-  const isPortrait = height > width;
-  const inputContainerBottom = isPortrait ? 55 : 0;
-
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { colors } = useTheme();
 
@@ -61,7 +61,11 @@ const ChatView: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={footerHeight}
+    >
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>AI Assistant</Text>
         <TouchableOpacity onPress={onProfilePress} style={[styles.profileButton, { backgroundColor: colors.border }]}>
@@ -73,8 +77,9 @@ const ChatView: React.FC = () => {
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}
         style={styles.messagesList}
+        contentContainerStyle={{ paddingBottom: footerHeight }}
       />
-      <View style={[styles.inputContainer, { bottom: inputContainerBottom }]}>
+      <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           value={input}
@@ -85,7 +90,7 @@ const ChatView: React.FC = () => {
           <Text style={styles.sendButtonText}>Send</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -117,7 +122,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     backgroundColor: '#FFFFFF',
-    bottom: 55,
+    bottom: 0,
     flexDirection: 'row',
     padding: 10,
   },

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { getLocalBackups, deleteLocalBackup } from './storage';
 
 export interface StoredUserData {
@@ -9,7 +10,8 @@ export interface StoredUserData {
   language: string;
   currency: string;
   password?: string;
-}
+  biometricEnabled?: boolean;
+} 
 
 export const useAuth = () => {
   const [storedUser, setStoredUser] = useState<StoredUserData | null>(null);
@@ -19,7 +21,9 @@ export const useAuth = () => {
       try {
         const session = await SecureStore.getItemAsync("user_session");
         if (session) {
-          setStoredUser(JSON.parse(session));
+          const parsed = JSON.parse(session) as StoredUserData;
+          // ensure older records without biometric flag behave correctly
+          setStoredUser({ ...parsed, biometricEnabled: parsed.biometricEnabled ?? false });
         }
       } catch (error) {
         console.error("Error loading user data from storage:", error);
@@ -44,12 +48,70 @@ export const useAuth = () => {
     return false;
   };
 
+  const resetPassword = async (id: string, newPassword: string) => {
+    if (!storedUser) return false;
+    if (storedUser.email !== id && storedUser.mobile !== id) return false;
+    const updated: StoredUserData = { ...storedUser, password: newPassword };
+    try {
+      await SecureStore.setItemAsync('user_session', JSON.stringify(updated));
+      setStoredUser(updated);
+      return true;
+    } catch (error) {
+      console.error('resetPassword failed', error);
+      return false;
+    }
+  };
+
+  const checkBiometricAvailability = async (id: string) => {
+    try {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+      if (!hasHardware || !isEnrolled) return false;
+      if (!storedUser) return false;
+      if (storedUser.email !== id && storedUser.mobile !== id) return false;
+      return Boolean(storedUser.biometricEnabled);
+    } catch (error) {
+      console.error('checkBiometricAvailability error', error);
+      return false;
+    }
+  };
+
+  const verifyBiometricLogin = async (id: string) => {
+    if (!storedUser) return false;
+    if (storedUser.email !== id && storedUser.mobile !== id) return false;
+    if (!storedUser.biometricEnabled) return false;
+    try {
+      const result = await LocalAuthentication.authenticateAsync({ promptMessage: 'Authenticate to login' });
+      return result.success;
+    } catch (error) {
+      console.error('verifyBiometricLogin error', error);
+      return false;
+    }
+  };
+
+  const setBiometricEnabled = async (id: string, enabled: boolean) => {
+    if (!storedUser) return false;
+    if (storedUser.email !== id && storedUser.mobile !== id) return false;
+    const updated: StoredUserData = { ...storedUser, biometricEnabled: enabled };
+    try {
+      await SecureStore.setItemAsync('user_session', JSON.stringify(updated));
+      setStoredUser(updated);
+      return true;
+    } catch (error) {
+      console.error('setBiometricEnabled failed', error);
+      return false;
+    }
+  };
+
   return {
     storedUser,
     checkUserExists,
     login,
+    resetPassword,
+    checkBiometricAvailability,
+    verifyBiometricLogin,
+    setBiometricEnabled,
     getLocalBackups,
     deleteLocalBackup,
-    // Add other auth-related functions here if they need to be shared
   };
 };

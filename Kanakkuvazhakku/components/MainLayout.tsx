@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Footer from './Footer';
@@ -11,6 +11,12 @@ interface MainLayoutProps {
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+  const [footerHeight, setFooterHeight] = useState(0);
+
+  const onFooterLayout = (event: any) => {
+    setFooterHeight(event.nativeEvent.layout.height);
+  };
+
   const { width, height } = useWindowDimensions();
   const route = useRoute();
   const { state } = useApp();
@@ -22,10 +28,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <View style={[styles.safeArea, { backgroundColor: theme.colors.background }, styles.containerLandscape]}>
         <SafeAreaView style={styles.flex1}>
           <View style={styles.content}>
-            {children}
+            {React.Children.map(children, child =>
+              React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<any>, { footerHeight }) : child
+            )}
           </View>
         </SafeAreaView>
-        <Footer activeTab={route.name} orientation={orientation} theme={theme} />
+        <Footer activeTab={route.name} orientation={orientation} theme={theme} onLayout={onFooterLayout} />
       </View>
     );
   }
@@ -34,9 +42,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
       <View style={styles.containerPortrait}>
         <View style={styles.content}>
-          {children}
+          {React.Children.map(children, child =>
+            React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<any>, { footerHeight }) : child
+          )}
         </View>
-        <Footer activeTab={route.name} orientation={orientation} theme={theme} />
+        <Footer activeTab={route.name} orientation={orientation} theme={theme} onLayout={onFooterLayout} />
       </View>
     </SafeAreaView>
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ComponentProps } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Home, List, Wallet, Sparkles, Plus } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -15,11 +15,12 @@ interface FooterProps {
   activeTab: string;
   orientation: 'portrait' | 'landscape';
   theme: Theme;
+  onLayout?: ComponentProps<typeof View>['onLayout'];
 }
 
 type FooterNavigationProp = StackNavigationProp<RootStackParamList>;
 
-const Footer: React.FC<FooterProps> = ({ activeTab, orientation, theme }) => {
+const Footer: React.FC<FooterProps> = ({ activeTab, orientation, theme, onLayout }) => {
   const { t } = useTranslation();
   const navigation = useNavigation<FooterNavigationProp>();
 
@@ -29,7 +30,7 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation, theme }) => {
   const tabButtonStyle = orientation === 'portrait' ? styles.tabButtonPortrait : styles.tabButtonLandscape;
 
   return (
-    <View style={containerStyle}>
+    <View style={containerStyle} onLayout={onLayout}>
       {/* Home */}
       <TouchableOpacity
         onPress={() => navigation.navigate('Dashboard')}

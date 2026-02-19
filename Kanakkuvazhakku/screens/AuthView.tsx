@@ -32,19 +32,14 @@ const AuthView: React.FC = () => {
         }, [])
     );
 
-    const { login, checkUserExists, getLocalBackups, deleteLocalBackup } = useAuth();
+    const { login, checkUserExists, getLocalBackups, deleteLocalBackup, resetPassword, checkBiometricAvailability, verifyBiometricLogin, setBiometricEnabled } = useAuth();
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const theme = useTheme();
 
     const onProfilePress = () => {
         navigation.navigate('Profile');
     };
-    // The following are mock functions that are not yet in the useAuth hook.
-    // They will need to be implemented or removed.
-    
-    const resetPassword = (id: string, pass: string) => { console.log('resetPassword', id, pass); return true; };
-    const checkBiometricAvailability = (id: string) => { console.log('checkBiometric', id); return true; };
-    const verifyBiometricLogin = async (id: string) => { console.log('verifyBiometric', id); return true; };
+
     
     const { t } = useTranslation();
     const [inputValue, setInputValue] = useState('');
@@ -86,7 +81,14 @@ const AuthView: React.FC = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             if (inputValue.length > 5) {
-                setCanUseBiometric(checkBiometricAvailability(inputValue));
+                (async () => {
+                    try {
+                        const available = await checkBiometricAvailability(inputValue.trim());
+                        setCanUseBiometric(available);
+                    } catch {
+                        setCanUseBiometric(false);
+                    }
+                })();
             } else {
                 setCanUseBiometric(false);
             }
@@ -192,12 +194,12 @@ const AuthView: React.FC = () => {
   
     const handleOTPVerify = () => setViewState('reset');
   
-    const handleResetSubmit = () => {
+    const handleResetSubmit = async () => {
         if (newPassword !== confirmNewPassword) {
             setError(t('passwords_mismatch'));
             return;
         }
-        const success = resetPassword(resetIdentifier, newPassword);
+        const success = await resetPassword(resetIdentifier, newPassword);
         if (success) {
             setViewState('success');
         } else {
