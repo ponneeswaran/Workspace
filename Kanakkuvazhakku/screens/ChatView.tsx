@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, KeyboardAvoidingView, Platform, useWindowDimensions } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -24,6 +24,8 @@ const ChatView: React.FC<ChatViewProps> = ({ footerHeight = 0 }) => {
   ]);
   const [input, setInput] = useState('');
   const { state, addExpense, addIncomeSmart, deleteExpense, deleteIncome } = useApp();
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -95,7 +97,7 @@ const ChatView: React.FC<ChatViewProps> = ({ footerHeight = 0 }) => {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={footerHeight + (Platform.OS === 'ios' ? 20 : 0)}
+      keyboardVerticalOffset={(isLandscape ? 0 : footerHeight) + (Platform.OS === 'ios' ? 20 : 0)}
     >
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>AI Assistant</Text>
@@ -108,9 +110,9 @@ const ChatView: React.FC<ChatViewProps> = ({ footerHeight = 0 }) => {
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}
         style={styles.messagesList}
-        contentContainerStyle={{ paddingBottom: footerHeight + 80 }}
+        contentContainerStyle={{ paddingBottom: isLandscape ? 24 : footerHeight + 80 }}
       />
-      <View style={[styles.inputContainer, { marginBottom: footerHeight }]}>
+      <View style={[styles.inputContainer, isLandscape ? undefined : { marginBottom: footerHeight }]}>
         <TextInput
           style={styles.input}
           value={input}
