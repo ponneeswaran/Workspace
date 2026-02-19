@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { User } from 'phosphor-react-native';
-
-import { GOOGLE_API_KEY } from '@env';
-
-const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+import { chatWithFinancialAssistant } from '../services/geminiService';
+import { useApp } from '../contexts/AppContext';
 
 interface Message {
   id: string;
@@ -25,6 +22,7 @@ const ChatView: React.FC<ChatViewProps> = ({ footerHeight = 0 }) => {
     { id: '1', text: 'Hello! How can I help you with your finances?', isUser: false },
   ]);
   const [input, setInput] = useState('');
+  const { state } = useApp();
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -34,10 +32,7 @@ const ChatView: React.FC<ChatViewProps> = ({ footerHeight = 0 }) => {
     setInput('');
 
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-latest' });
-      const result = await model.generateContent(input);
-      const response = result.response.text();
-
+      const response = await chatWithFinancialAssistant(input, [], { expenses: state.expenses, incomes: state.incomes, budgets: state.budgets });
       const aiMessage: Message = { id: (Date.now() + 1).toString(), text: response, isUser: false };
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {

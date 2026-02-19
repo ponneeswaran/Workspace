@@ -32,7 +32,7 @@ const AuthView: React.FC = () => {
         }, [])
     );
 
-    const { login, checkUserExists, getLocalBackups, deleteLocalBackup, resetPassword, checkBiometricAvailability, verifyBiometricLogin, setBiometricEnabled } = useAuth();
+    const { login, checkUserExists, getLocalBackups, deleteLocalBackup, resetPassword, checkBiometricAvailability, verifyBiometricLogin } = useAuth();
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const theme = useTheme();
 

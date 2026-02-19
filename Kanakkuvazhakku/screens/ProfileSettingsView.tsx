@@ -1,9 +1,12 @@
 // ProfileSettingsView.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useApp } from '../contexts/AppContext';
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
+import type { RootStackParamList } from '../navigation/AppNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { lightTheme, darkTheme } from '../utils/theme';
 
@@ -23,6 +26,7 @@ const ProfileSettingsView: React.FC = () => {
   const { state, dispatch } = useApp();
   const theme = state.theme === 'light' ? lightTheme : darkTheme;
   const [selectedLanguage, setSelectedLanguage] = useState(i18n.language);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'Profile'>>();
 
   const changeLanguage = (item: { value: string }) => {
     i18n.changeLanguage(item.value);
@@ -50,7 +54,12 @@ const ProfileSettingsView: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Text style={[styles.title, { color: theme.colors.text }]}>{t('Profile Settings')}</Text>
+      <View style={styles.headerRow}>
+        <Text style={[styles.title, { color: theme.colors.text }]}>{t('Profile Settings')}</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('ProfileEdit')} style={styles.headerAction}>
+          <Text style={[styles.headerActionText, { color: theme.colors.primary }]}>{t('Edit Profile')}</Text>
+        </TouchableOpacity>
+      </View>
 
       <View style={[styles.option, { borderBottomColor: theme.colors.borderColor }]}>
         <Text style={[styles.optionText, { color: theme.colors.text }]}>{t('Language')}</Text>
@@ -106,6 +115,9 @@ const styles = StyleSheet.create({
     height: 50,
     width: 150,
   },
+  headerAction: { padding: 8 },
+  headerActionText: { fontWeight: '700' },
+  headerRow: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   option: {
     alignItems: 'center',
     borderBottomWidth: 1,

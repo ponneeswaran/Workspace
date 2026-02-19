@@ -11,7 +11,10 @@ export interface StoredUserData {
   currency: string;
   password?: string;
   biometricEnabled?: boolean;
-} 
+  profilePicture?: string; // base64/data URL or local URI
+}
+
+
 
 export const useAuth = () => {
   const [storedUser, setStoredUser] = useState<StoredUserData | null>(null);
@@ -103,6 +106,19 @@ export const useAuth = () => {
     }
   };
 
+  const updateProfile = async (patch: Partial<StoredUserData>) => {
+    if (!storedUser) return false;
+    const updated: StoredUserData = { ...storedUser, ...patch };
+    try {
+      await SecureStore.setItemAsync('user_session', JSON.stringify(updated));
+      setStoredUser(updated);
+      return true;
+    } catch (error) {
+      console.error('updateProfile failed', error);
+      return false;
+    }
+  };
+
   return {
     storedUser,
     checkUserExists,
@@ -111,6 +127,7 @@ export const useAuth = () => {
     checkBiometricAvailability,
     verifyBiometricLogin,
     setBiometricEnabled,
+    updateProfile,
     getLocalBackups,
     deleteLocalBackup,
   };

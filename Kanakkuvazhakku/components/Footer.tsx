@@ -1,13 +1,11 @@
-import React, { ComponentProps } from 'react';
+import React, { ComponentProps, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Home, List, Wallet, Sparkles, Plus } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator'; // Adjust path as needed
 import { useTranslation } from 'react-i18next';
-
-// Assuming AddTransactionModal exists in the same components directory
-// import AddTransactionModal from './AddTransactionModal';
+import AddTransactionModal from './AddTransactionModal';
 
 import { Theme } from '../utils/theme';
 
@@ -28,6 +26,7 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation, theme, onLayout
     ? [styles.containerPortrait, { backgroundColor: theme.colors.cardBackground, shadowColor: theme.colors.text }]
     : [styles.containerLandscape, { backgroundColor: theme.colors.cardBackground, borderLeftColor: theme.colors.borderColor }];
   const tabButtonStyle = orientation === 'portrait' ? styles.tabButtonPortrait : styles.tabButtonLandscape;
+  const [showAddModal, setShowAddModal] = useState(false);
 
   return (
     <View style={containerStyle} onLayout={onLayout}>
@@ -60,6 +59,7 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation, theme, onLayout
       {/* Center Add Button */}
       <View style={styles.addButtonContainer}>
         <TouchableOpacity 
+          onPress={() => setShowAddModal(true)}
           style={[styles.addButton, { backgroundColor: theme.colors.primary, borderColor: theme.colors.background, shadowColor: theme.colors.text }]}
           accessibilityLabel="Add Transaction"
         >
@@ -93,8 +93,14 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation, theme, onLayout
         <Text style={[styles.tabText, activeTab === 'Assistant' ? { color: theme.colors.primary } : { color: theme.colors.secondary }]}>{t('Assistant')}</Text>
       </TouchableOpacity>
       
-      {/* Add Transaction Modal - Placeholder */}
-      {/* {showAddModal && <AddTransactionModal onClose={() => setShowAddModal(false)} initialTab={activeTab === 'income' ? 'income' : 'expense'} />} */}
+      {/* Add Transaction Modal */}
+      {showAddModal && (
+        <AddTransactionModal
+          visible={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          initialTab={activeTab === 'Income' ? 'income' : 'expense'}
+        />
+      )}
     </View>
   );
 };

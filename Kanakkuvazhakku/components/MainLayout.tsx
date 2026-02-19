@@ -13,7 +13,7 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [footerHeight, setFooterHeight] = useState(0);
 
-  const onFooterLayout = (event: any) => {
+  const onFooterLayout = (event: import('react-native').LayoutChangeEvent) => {
     setFooterHeight(event.nativeEvent.layout.height);
   };
 
@@ -29,7 +29,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <SafeAreaView style={styles.flex1}>
           <View style={styles.content}>
             {React.Children.map(children, child =>
-              React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<any>, { footerHeight }) : child
+              React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<{ footerHeight?: number }>, { footerHeight }) : child
             )}
           </View>
         </SafeAreaView>
@@ -43,7 +43,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <View style={styles.containerPortrait}>
         <View style={styles.content}>
           {React.Children.map(children, child =>
-            React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<any>, { footerHeight }) : child
+            React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<{ footerHeight?: number }>, { footerHeight }) : child
           )}
         </View>
         <Footer activeTab={route.name} orientation={orientation} theme={theme} onLayout={onFooterLayout} />

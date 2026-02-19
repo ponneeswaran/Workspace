@@ -11,6 +11,8 @@ import TermsScreen from '../screens/TermsScreen';
 import RegistrationView from '../screens/RegistrationView';
 import MainLayout from '../components/MainLayout';
 import ProfileSettingsView from '../screens/ProfileSettingsView';
+import ProfileEditView from '../screens/ProfileEditView';
+import AccountView from '../screens/AccountView';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -23,6 +25,8 @@ export type RootStackParamList = {
   Terms: undefined;
   Registration: { identifier: string };
   Profile: undefined;
+  ProfileEdit: undefined;
+  Account: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -60,8 +64,11 @@ const RootNavigator: React.FC = () => (
       <Stack.Screen name="Registration" component={RegistrationView} />
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
       <Stack.Screen name="Expenses" component={ExpensesScreen} />
+      <Stack.Screen name="Income" component={ExpensesScreen} />
       <Stack.Screen name="Assistant" component={AssistantScreen} />
       <Stack.Screen name="Profile" component={ProfileSettingsScreen} />
+      <Stack.Screen name="ProfileEdit" component={ProfileEditView} />
+      <Stack.Screen name="Account" component={AccountView} />
     </Stack.Navigator>
   </NavigationContainer>
 );

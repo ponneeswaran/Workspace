@@ -1,14 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { User } from 'phosphor-react-native';
-import { useApp } from '../contexts/AppContext';
-import { Transaction } from '../types';
+import ExpenseList from '../components/ExpenseList';
 
 const HistoryView: React.FC = () => {
-  const { state } = useApp();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { colors } = useTheme();
   const theme = useTheme();
@@ -17,21 +15,6 @@ const HistoryView: React.FC = () => {
     navigation.navigate('Profile');
   };
 
-  const transactions: Transaction[] = [...state.expenses, ...state.incomes].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
-  const renderItem = ({ item }: { item: Transaction }) => (
-    <View style={styles.item}>
-      <Text style={styles.description}>
-        {'description' in item ? item.description : item.source}
-      </Text>
-      <Text style={[styles.amount, 'category' in item ? styles.expense : styles.income]}>
-        {'category' in item ? '-' : '+'}₹{item.amount}
-      </Text>
-      <Text style={styles.date}>{new Date(item.date).toLocaleDateString()}</Text>
-    </View>
-  );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -41,11 +24,11 @@ const HistoryView: React.FC = () => {
           <User size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
-      <FlatList
-        data={transactions}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-      />
+
+      {/* New ExpenseList component (port from web) */}
+      <View style={styles.flexFill}>
+        <ExpenseList />
+      </View>
     </View>
   );
 };
@@ -70,6 +53,7 @@ const styles = StyleSheet.create({
   expense: {
     color: '#EF4444',
   },
+  flexFill: { flex: 1 },
   header: {
     alignItems: 'center',
     flexDirection: 'row',

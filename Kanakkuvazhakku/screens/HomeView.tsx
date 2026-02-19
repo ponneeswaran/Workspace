@@ -7,6 +7,7 @@ import { useAuth } from '../utils/useAuth';
 import { User } from 'lucide-react-native';
 import { useApp } from '../contexts/AppContext';
 import { lightTheme, darkTheme } from '../utils/theme';
+import Dashboard from '../components/Dashboard';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Profile'>;
 
@@ -33,6 +34,10 @@ const HomeView: React.FC = () => {
           <User size={24} color={theme.colors.secondary} />
         </TouchableOpacity>
       </View>
+
+      <View style={styles.flexFill}>
+        <Dashboard />
+      </View>
     </View>
   );
 };
@@ -41,6 +46,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  flexFill: { flex: 1 },
   header: {
     alignItems: 'center',
     flexDirection: 'row',
