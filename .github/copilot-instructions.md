@@ -13,6 +13,7 @@ This repository contains an Expo React Native application (Kanakkuvazhakku) plus
 - Default branch policy: **Use `main` for changes by default**. Create feature branches only when explicitly requested (major or risky changes).
 - Directory check: always run client commands from `Kanakkuvazhakku/` (cd there first).
 - Start the app: cd into `Kanakkuvazhakku` then run `npx expo start`.
+- Layout & safe-area: use `components/MainLayout.tsx` to wrap screens so they respect device safe areas (dynamic island / status bar). For standalone screens (Auth, Registration, Onboarding) pass `showFooter={false}` to hide the bottom footer while retaining safe-area insets.
 - Start the local proxy (if needed): `npm run start:proxy` (run from `Kanakkuvazhakku`).
 - Typecheck / lint / tests (run before pushing):
   - TypeScript: `npx tsc --noEmit`

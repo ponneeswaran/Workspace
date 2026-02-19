@@ -5,6 +5,7 @@ Small, focused README for daily development tasks and pre-push checklist.
 ## Quick start
 - Open terminal and run: `cd Kanakkuvazhakku`
 - Start Expo: `npx expo start`
+- Layout / safe-area: screens should be wrapped with `MainLayout` (use `showFooter={false}` for Auth/Registration/Onboarding so the footer is hidden but safe-area insets are preserved)
 - Start local AI proxy (dev only): `npm run start:proxy`
 
 ## Important commands
