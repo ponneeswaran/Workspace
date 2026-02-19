@@ -1,28 +1,45 @@
 # AI Agent Instructions for This Codebase
 
 ## Overview
-The workspace is currently empty. This document will be updated as components are added to reflect the actual architecture, workflows, and conventions.
+This repository contains an Expo React Native application (Kanakkuvazhakku) plus a small local Node proxy used for AI/Gemini development.  Use the `Kanakkuvazhakku/` folder as the app root for all client-side commands.  By default, commit changes directly to the `main` branch unless you explicitly ask for a feature branch or PR workflow.
 
-## Architecture
-- No major components or services defined yet.
-- Data flows and service boundaries will be documented here once established.
+## Architecture (quick)
+- Expo React Native app: `Kanakkuvazhakku/` — UI, screens, components, contexts, and services.
+- Local dev proxy: `Kanakkuvazhakku/server/index.js` — used for Gemini/AI proxying in development.
+- Utilities: `utils/` contains crypto, storage helpers and demo data.
+- State: AppContext + AsyncStorage + SecureStore (BYOK, user session).
 
-## Developer Workflows
-- **Directory Check**: Before running `npm` or `yarn` commands, verify that the current working directory is the correct project folder.
-- **Expo CLI**: Run `npx expo start` only from the `Kanakkuvazhakku` project root (for example, `Kanakkuvazhakku/`) — do not run it from the workspace root or other folders. If needed, `cd` into the `Kanakkuvazhakku` folder before starting Expo.
-- After every file modification, run a TypeScript check (`npx tsc --noEmit`) and an ESLint check (`npx eslint . --ext .ts,.tsx`).
-- Build commands: Not yet defined.
-- Test commands: Not yet established.
-- Debugging: Standard practices apply until project-specific methods are developed.
+## Developer workflows (updated)
+- Default branch policy: **Use `main` for changes by default**. Create feature branches only when explicitly requested (major or risky changes).
+- Directory check: always run client commands from `Kanakkuvazhakku/` (cd there first).
+- Start the app: cd into `Kanakkuvazhakku` then run `npx expo start`.
+- Start the local proxy (if needed): `npm run start:proxy` (run from `Kanakkuvazhakku`).
+- Typecheck / lint / tests (run before pushing):
+  - TypeScript: `npx tsc --noEmit`
+  - Lint: `npm run lint` (runs `eslint . --ext .ts,.tsx`)
+  - Tests: `npm test` (Jest — may be empty until tests are added)
+- After edits: run the full pipeline above for any change touching logic or types.
+- Commits & PRs: small fixes and routine changes may be committed directly to `main`. Open a PR only when you ask for review, or for large/risky upgrades.
 
-## Project Conventions
-- No specific patterns or conventions have been established.
-- Follow standard coding practices for the languages used.
+## Branching & naming (when used)
+- Branches are only used by request. When needed, follow `feat/...`, `fix/...`, `chore/...` conventions.
 
-## Integration Points
-- No external dependencies or integrations yet.
-- Cross-component communication patterns will be documented as they emerge.
+## Testing & CI
+- Add unit/e2e tests and CI checks as part of the roadmap. For now run local `npx tsc --noEmit`, `npm run lint`, and `npm test`.
 
-## Key Files and Directories
-- This file: `.github/copilot-instructions.md` - Update as the project evolves.
-- Future key directories will be referenced here.
+## Project conventions
+- Follow standard TypeScript + React Native conventions.
+- Keep translations in `translations/` and secure keys out of the client (use the proxy).
+
+## Key files & places to look
+- `Kanakkuvazhakku/` — main app folder
+- `Kanakkuvazhakku/screens/` — screens (Profile, Home, History, etc.)
+- `Kanakkuvazhakku/components/` — UI components (AddTransactionModal, ImageCropper, etc.)
+- `Kanakkuvazhakku/services/geminiService.ts` — AI proxy + BYOK helpers
+- `Kanakkuvazhakku/server/index.js` — local Gemini proxy for dev
+- `Kanakkuvazhakku/utils/crypto.ts` — backup encryption helpers
+- `Kanakkuvazhakku/package.json` — scripts: `start`, `lint`, `test`, `start:proxy`
+
+---
+
+Keep this document up to date — edit on `main` by default unless you explicitly ask for a branch/PR workflow.
