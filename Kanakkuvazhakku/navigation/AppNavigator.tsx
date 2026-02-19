@@ -58,6 +58,11 @@ const ProfileSettingsScreen = () => (
     <ProfileSettingsView />
   </MainLayout>
 );
+const ProfileEditScreen = () => (
+  <MainLayout>
+    <ProfileEditView />
+  </MainLayout>
+);
 const IncomeScreen = () => (
   <MainLayout>
     <IncomeView />
@@ -84,7 +89,7 @@ const RootNavigator: React.FC = () => (
       <Stack.Screen name="CategoryExpenses" component={CategoryExpensesView} />
       <Stack.Screen name="Assistant" component={AssistantScreen} />
       <Stack.Screen name="Profile" component={ProfileSettingsScreen} />
-      <Stack.Screen name="ProfileEdit" component={ProfileEditView} />
+      <Stack.Screen name="ProfileEdit" component={ProfileEditScreen} />
       <Stack.Screen name="Account" component={AccountView} />
     </Stack.Navigator>
   </NavigationContainer>
