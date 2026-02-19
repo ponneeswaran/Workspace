@@ -48,6 +48,9 @@ export default function AddTransactionModal({ visible, onClose, initialTab = 'ex
   const [nlInput, setNlInput] = useState('');
   const [showAIInput, setShowAIInput] = useState(false);
 
+  // wheel pickers
+  const [showCategoryWheel, setShowCategoryWheel] = useState(false);
+
   const resetState = () => {
     setExpAmount(''); setExpCategory('Food'); setExpDesc(''); setExpDate(todayIso()); setExpPaymentMethod('UPI'); setExpErrors({});
     setIncAmount(''); setIncCategory('Salary'); setIncSource(''); setIncDate(todayIso()); setIncRecurrence('None'); setTenantContact(''); setIncErrors({});
@@ -223,25 +226,32 @@ export default function AddTransactionModal({ visible, onClose, initialTab = 'ex
                 <View style={styles.row2}>
                   <View style={styles.col}>
                     <Text style={styles.label}>{t('Category') || 'Category'}</Text>
-                    <View style={styles.pickerWrap}>
-                      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryChipsRow} keyboardShouldPersistTaps="handled">
-                        {CATEGORY_OPTIONS.map(c => (
-                          <TouchableOpacity
-                            key={c}
-                            onPress={() => setExpCategory(c)}
-                            style={[styles.chip, expCategory === c && styles.chipActive]}
-                            accessibilityRole="button"
-                            accessibilityState={{ selected: expCategory === c }}
-                          >
-                            <Text style={expCategory === c ? styles.chipTextActive : styles.chipText}>{c}</Text>
-                          </TouchableOpacity>
-                        ))}
-                      </ScrollView>
-                      {/* keep platform picker as fallback (hidden visually on some devices) */}
-                      <Picker selectedValue={expCategory} onValueChange={(v) => setExpCategory(v as Category)} style={styles.hiddenPicker}>
-                        {CATEGORY_OPTIONS.map(c => <Picker.Item key={c} label={c} value={c} />)}
-                      </Picker>
-                    </View>
+                    <TouchableOpacity
+                      onPress={() => setShowCategoryWheel(true)}
+                      style={styles.dateButton}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Select category, ${expCategory}`}
+                    >
+                      <Text style={{ color: '#111827' }}>{expCategory}</Text>
+                    </TouchableOpacity>
+
+                    {/* Modal wheel picker */}
+                    <Modal visible={showCategoryWheel} transparent animationType="slide" onRequestClose={() => setShowCategoryWheel(false)}>
+                      <View style={styles.backdrop}>
+                        <View style={[styles.sheet, { maxHeight: 260, paddingBottom: 0 }]}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12 }}>
+                            <TouchableOpacity onPress={() => setShowCategoryWheel(false)} accessibilityRole="button"><Text style={{ color: '#6b7280' }}>Cancel</Text></TouchableOpacity>
+                            <Text style={styles.modalTitle}>{t('Category') || 'Category'}</Text>
+                            <TouchableOpacity onPress={() => setShowCategoryWheel(false)} accessibilityRole="button"><Text style={{ color: '#0d9488', fontWeight: '700' }}>Done</Text></TouchableOpacity>
+                          </View>
+                          <View style={{ borderTopWidth: 1, borderColor: '#e6e9ee', backgroundColor: '#fff' }}>
+                            <Picker selectedValue={expCategory} onValueChange={(v) => setExpCategory(v as Category)} style={{ height: 220 }} itemStyle={{ fontSize: 18, height: 200 }} mode={Platform.OS === 'ios' ? 'dialog' : 'dropdown'}>
+                              {CATEGORY_OPTIONS.map(c => <Picker.Item key={c} label={c} value={c} />)}
+                            </Picker>
+                          </View>
+                        </View>
+                      </View>
+                    </Modal>
                   </View>
 
                   <View style={styles.colRight}>
@@ -357,6 +367,7 @@ const styles = StyleSheet.create({
   inputError: { borderColor: '#ef4444', borderWidth: 1 },
   label: { color: '#6b7280', fontSize: 12, fontWeight: '600', marginBottom: 6 },
   loadingDot: { color: '#fff', fontWeight: '700' },
+  modalTitle: { color: '#111827', flex: 1, fontWeight: '600', textAlign: 'center' },
   pickerWrap: { backgroundColor: '#f8fafc', borderRadius: 10 },
   row2: { flexDirection: 'row', marginBottom: 12 },
   saveBtn: { alignItems: 'center', backgroundColor: '#ef4444', borderRadius: 12, marginTop: 8, padding: 14 },
