@@ -5,6 +5,7 @@ import { useNavigation, useTheme } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useApp } from '../contexts/AppContext';
+import demoData from '../utils/demoData';
 import { User } from 'phosphor-react-native';
 
 type OnboardingScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Onboarding'>;
@@ -20,13 +21,18 @@ const OnboardingView: React.FC = () => {
   const [name, setName] = useState('');
   const [currency, setCurrency] = useState('INR');
   const [language, setLanguage] = useState<'EN' | 'TA'>('EN');
-  const { dispatch } = useApp();
+  const { dispatch, loadDemoData } = useApp();
 
   const handleComplete = () => {
     if (name) {
       dispatch({ type: 'SET_USER', payload: { name, currency, language } });
       navigation.navigate('Dashboard');
     }
+  };
+
+  const handleLoadDemo = () => {
+    loadDemoData(demoData);
+    navigation.navigate('Dashboard');
   };
 
   return (
@@ -72,6 +78,10 @@ const OnboardingView: React.FC = () => {
       <TouchableOpacity style={styles.button} onPress={handleComplete}>
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={[styles.button, styles.demoButton]} onPress={handleLoadDemo}>
+        <Text style={[styles.buttonText, styles.demoButtonText]}>Load demo data</Text>
+      </TouchableOpacity>
     </View>
   </View>
   );
@@ -94,6 +104,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
+  },
+  demoButton: {
+    backgroundColor: '#E6FFFA',
+    borderColor: '#0F766E',
+    borderWidth: 1,
+    marginTop: 12,
+  },
+  demoButtonText: {
+    color: '#0F766E',
+    fontWeight: '700',
   },
   header: {
     alignItems: 'center',

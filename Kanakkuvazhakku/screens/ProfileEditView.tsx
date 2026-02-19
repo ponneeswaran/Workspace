@@ -56,14 +56,14 @@ const ProfileEditView: React.FC = () => {
       </View>
 
       <View style={styles.content}>
-        <TouchableOpacity onPress={pickImage} style={styles.avatarWrapper}>
-          {preview ? <Image source={{ uri: preview }} style={styles.avatar} /> : <View style={styles.avatarPlaceholder}><Text style={styles.avatarInitialText}>{name ? name.charAt(0).toUpperCase() : 'U'}</Text></View>}
+        <TouchableOpacity onPress={pickImage} style={styles.avatarWrapper} accessibilityRole="button" accessibilityLabel={t('Change profile picture') || 'Change profile picture'}>
+          {preview ? <Image source={{ uri: preview }} style={styles.avatar} accessibilityLabel={t('Profile picture') || 'Profile picture'} /> : <View style={styles.avatarPlaceholder}><Text style={styles.avatarInitialText}>{name ? name.charAt(0).toUpperCase() : 'U'}</Text></View>}
         </TouchableOpacity>
 
         <Text style={styles.label}>{t('Full Name')}</Text>
-        <TextInput value={name} onChangeText={setName} style={styles.input} placeholder={t('name_placeholder')} />
+        <TextInput value={name} onChangeText={setName} style={styles.input} placeholder={t('name_placeholder')} accessibilityLabel={t('Full Name') || 'Full Name'} />
 
-        <TouchableOpacity style={styles.saveBtn} onPress={handleSave}><Text style={styles.saveText}>{t('Save Changes') || 'Save Changes'}</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.saveBtn} onPress={handleSave} accessibilityRole="button" accessibilityLabel={t('Save Changes') || 'Save Changes'}><Text style={styles.saveText}>{t('Save Changes') || 'Save Changes'}</Text></TouchableOpacity>
       </View>
 
       {croppingUri && <ImageCropper imageUri={croppingUri} onCancel={() => setCroppingUri(null)} onCrop={handleCrop} />}

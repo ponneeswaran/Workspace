@@ -34,6 +34,9 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation, theme, onLayout
       <TouchableOpacity
         onPress={() => navigation.navigate('Dashboard')}
         style={tabButtonStyle}
+        accessibilityRole="button"
+        accessibilityState={{ selected: activeTab === 'Dashboard' }}
+        accessibilityLabel={`${t('Home')} tab`}
       >
         <Home 
           size={24} 
@@ -47,6 +50,9 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation, theme, onLayout
       <TouchableOpacity
         onPress={() => navigation.navigate('Expenses')}
         style={tabButtonStyle}
+        accessibilityRole="button"
+        accessibilityState={{ selected: activeTab === 'Expenses' }}
+        accessibilityLabel={`${t('History')} tab`}
       >
         <List 
           size={24} 
@@ -71,6 +77,9 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation, theme, onLayout
       <TouchableOpacity
         onPress={() => navigation.navigate('Income')}
         style={tabButtonStyle}
+        accessibilityRole="button"
+        accessibilityState={{ selected: activeTab === 'Income' }}
+        accessibilityLabel={`${t('Income')} tab`}
       >
         <Wallet 
           size={24} 
@@ -84,6 +93,9 @@ const Footer: React.FC<FooterProps> = ({ activeTab, orientation, theme, onLayout
       <TouchableOpacity
         onPress={() => navigation.navigate('Assistant')}
         style={tabButtonStyle}
+        accessibilityRole="button"
+        accessibilityState={{ selected: activeTab === 'Assistant' }}
+        accessibilityLabel={`${t('Assistant')} tab`}
       >
         <Sparkles 
           size={24} 

@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../utils/useAuth';
+import { saveLocalBackup } from '../utils/storage';
+import type { LocalBackup } from '../types';
 import EncryptionModal from '../components/EncryptionModal';
 import * as FileSystem from 'expo-file-system';
 import { Share } from 'react-native';
@@ -30,13 +32,31 @@ export default function AccountView() {
     }
   }; 
 
-  const handleBackup = async (_password?: string) => {
-    void _password;
+  const handleBackup = async (password?: string) => {
     try {
-      const payload = JSON.stringify({ expenses: state.expenses, incomes: state.incomes, budgets: state.budgets, user: storedUser });
+      const raw = JSON.stringify({ expenses: state.expenses, incomes: state.incomes, budgets: state.budgets, user: storedUser });
+
+      // encrypt if password provided
+      const { encryptBackup } = await import('../utils/crypto');
+      const contentToWrite = password ? encryptBackup(raw, password) : raw;
+
       const cacheDir = (FileSystem as unknown as { cacheDirectory?: string }).cacheDirectory ?? '';
-      const path = cacheDir + `kanakku_backup_${Date.now()}.kbf`;
-      await FileSystem.writeAsStringAsync(path, payload);
+      const timestamp = Date.now();
+      const path = cacheDir + `kanakku_backup_${timestamp}.kbf`;
+      await FileSystem.writeAsStringAsync(path, contentToWrite);
+
+      // record a local backup entry (so it appears in "Recent Device Backups")
+      const info = await FileSystem.getInfoAsync(path);
+      const size = 'size' in info && typeof (info as { size?: number }).size === 'number' ? (info as { size: number }).size : contentToWrite.length;
+      const backupMeta: LocalBackup = {
+        id: String(timestamp),
+        date: new Date(timestamp).toISOString(),
+        userName: storedUser?.name || state.user?.name || 'You',
+        content: contentToWrite,
+        size,
+      };
+      await saveLocalBackup(backupMeta);
+
       await Share.share({ url: path, title: t('Backup Data') });
     } catch (err) {
       console.error(err);
@@ -51,14 +71,14 @@ export default function AccountView() {
       <View style={styles.header}><Text style={styles.title}>{t('Account')}</Text></View>
 
       <View style={styles.card}>
-        <TouchableOpacity style={styles.row} onPress={() => setShowEncryption(true)}>
+        <TouchableOpacity style={styles.row} onPress={() => setShowEncryption(true)} accessibilityRole="button" accessibilityLabel={t('Backup Data') || 'Backup Data'}>
           <View>
             <Text style={styles.cardTitle}>{t('Backup Data')}</Text>
             <Text style={styles.cardSubtitle}>{t('backup_desc') || 'Create an encrypted backup of your data'}</Text>
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.row} onPress={handleExportCSV}>
+        <TouchableOpacity style={styles.row} onPress={handleExportCSV} accessibilityRole="button" accessibilityLabel={t('Export CSV') || 'Export CSV'}>
           <View>
             <Text style={styles.cardTitle}>{t('Export CSV')}</Text>
             <Text style={styles.cardSubtitle}>{t('export_desc') || 'Export your expenses as CSV'}</Text>

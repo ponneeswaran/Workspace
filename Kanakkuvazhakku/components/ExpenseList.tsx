@@ -71,8 +71,9 @@ export default function ExpenseList() {
 
   const renderItem = ({ item }: { item: Transaction }) => {
     const isExpense = 'description' in item;
+    const label = `${isExpense ? (item as Expense).description : (item as Income).source}, ${isExpense ? 'Expense' : 'Income'}, ₹${item.amount.toFixed(2)}, ${new Date(item.date).toLocaleDateString()}`;
     return (
-      <TouchableOpacity onPress={() => setSelectedItem(item)} style={styles.row}>
+      <TouchableOpacity onPress={() => setSelectedItem(item)} style={styles.row} accessibilityRole="button" accessibilityLabel={label}>
         <View style={styles.left}>
           <View style={[styles.avatar, isExpense ? styles.avatarExpense : styles.avatarIncome]}>
             <Text style={styles.avatarText}>{isExpense ? (item as Expense).category[0] : '💰'}</Text>
@@ -84,7 +85,7 @@ export default function ExpenseList() {
         </View>
         <View style={styles.right}>
           <Text style={[styles.amount, isExpense ? styles.amountExpense : styles.amountIncome]}>{isExpense ? '-' : '+'}₹{item.amount.toFixed(2)}</Text>
-          <TouchableOpacity onPress={() => onDelete(item.id, isExpense ? 'expense' : 'income')} style={styles.deleteBtn}>
+          <TouchableOpacity onPress={() => onDelete(item.id, isExpense ? 'expense' : 'income')} style={styles.deleteBtn} accessibilityRole="button" accessibilityLabel={`Delete ${isExpense ? (item as Expense).description : (item as Income).source}`}>
             <Trash size={18} color="#ef4444" />
           </TouchableOpacity>
         </View>
@@ -101,7 +102,7 @@ export default function ExpenseList() {
       <View style={styles.headerRow}>
         <View style={styles.searchWrap}>
           <Search color="#6b7280" />
-          <TextInput placeholder="Search" value={search} onChangeText={setSearch} style={styles.searchInput} />
+          <TextInput placeholder="Search" value={search} onChangeText={setSearch} style={styles.searchInput} accessibilityLabel="Search transactions" />
         </View>
       </View>
 

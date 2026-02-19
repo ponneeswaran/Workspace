@@ -55,10 +55,10 @@ export default function IncomeView() {
               <Text style={styles.amount}>+₹{item.amount.toFixed(2)}</Text>
               <View style={styles.actions}>
                 {item.status !== 'Received' && (
-                  <TouchableOpacity onPress={() => markReceived(item)} style={styles.okBtn}><Check size={14} color="#fff" /></TouchableOpacity>
+                  <TouchableOpacity onPress={() => markReceived(item)} style={styles.okBtn} accessibilityRole="button" accessibilityLabel="Mark as received"><Check size={14} color="#fff" /></TouchableOpacity>
                 )}
-                <TouchableOpacity onPress={() => setEditing(item)} style={styles.editBtn}><Text style={styles.editText}>Edit</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => confirmDelete(item.id)} style={styles.delBtn}><Text style={styles.delText}>Delete</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setEditing(item)} style={styles.editBtn} accessibilityRole="button" accessibilityLabel={`Edit ${item.source}`}><Text style={styles.editText}>Edit</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => confirmDelete(item.id)} style={styles.delBtn} accessibilityRole="button" accessibilityLabel={`Delete ${item.source}`}><Text style={styles.delText}>Delete</Text></TouchableOpacity>
               </View>
             </View>
           </TouchableOpacity>

@@ -6,6 +6,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { User } from 'phosphor-react-native';
 import { chatWithFinancialAssistant } from '../services/geminiService';
 import { useApp } from '../contexts/AppContext';
+import type { Expense, Income, Category, PaymentMethod, IncomeCategory, Recurrence } from '../types';
 
 interface Message {
   id: string;
@@ -22,7 +23,7 @@ const ChatView: React.FC<ChatViewProps> = ({ footerHeight = 0 }) => {
     { id: '1', text: 'Hello! How can I help you with your finances?', isUser: false },
   ]);
   const [input, setInput] = useState('');
-  const { state } = useApp();
+  const { state, addExpense, addIncomeSmart, deleteExpense, deleteIncome } = useApp();
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -32,7 +33,42 @@ const ChatView: React.FC<ChatViewProps> = ({ footerHeight = 0 }) => {
     setInput('');
 
     try {
-      const response = await chatWithFinancialAssistant(input, [], { expenses: state.expenses, incomes: state.incomes, budgets: state.budgets });
+      // Provide handlers that operate on AppContext directly (using hooks from top of component)
+
+      const response = await chatWithFinancialAssistant(
+        input,
+        [],
+        { expenses: state.expenses, incomes: state.incomes, budgets: state.budgets },
+        // handlers
+        (args: Partial<Expense>) => addExpense({
+          amount: Number(args.amount || 0),
+          category: (typeof args.category === 'string' ? (args.category as Category) : 'Other'),
+          description: typeof args.description === 'string' ? args.description : 'Expense from AI',
+          date: typeof args.date === 'string' ? args.date : new Date().toISOString().split('T')[0],
+          paymentMethod: (typeof args.paymentMethod === 'string' ? (args.paymentMethod as PaymentMethod) : 'Cash'),
+        }),
+        (args: Partial<Income>) => addIncomeSmart({
+          amount: Number(args.amount || 0),
+          category: (typeof args.category === 'string' ? (args.category as IncomeCategory) : 'Salary'),
+          source: typeof args.source === 'string' ? args.source : 'AI',
+          date: typeof args.date === 'string' ? args.date : new Date().toISOString().split('T')[0],
+          recurrence: (typeof args.recurrence === 'string' ? (args.recurrence as Recurrence) : 'None'),
+        }),
+        async (type: 'expense' | 'income', id?: string) => {
+          if (type === 'expense') {
+            if (id) deleteExpense(id);
+            else if (state.expenses.length) deleteExpense(state.expenses[0].id);
+            return 'Expense deleted.';
+          }
+          if (type === 'income') {
+            if (id) deleteIncome(id);
+            else if (state.incomes.length) deleteIncome(state.incomes[0].id);
+            return 'Income deleted.';
+          }
+          return 'No transaction found.';
+        }
+      );
+
       const aiMessage: Message = { id: (Date.now() + 1).toString(), text: response, isUser: false };
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {

@@ -98,27 +98,61 @@ export default function AddTransactionModal({ visible, onClose, initialTab = 'ex
     onClose();
   };
 
-  // Very small local NLP parser (amount + category keywords)
-  const handleAIParse = () => {
-    const text = nlInput.toLowerCase();
-    const amtMatch = text.match(/\b(\d+(?:[.,]\d{1,2})?)\b/);
-    if (amtMatch) {
-      setExpAmount(amtMatch[1].replace(',', '.'));
-      setIncAmount(amtMatch[1].replace(',', '.'));
-    }
-    for (const c of CATEGORY_OPTIONS) {
-      if (text.includes(c.toLowerCase())) {
-        setExpCategory(c);
-      }
-    }
-    if (text.includes('rent') || text.includes('tenant')) {
-      setIncCategory('Rent');
-    }
-    if (text.includes('cash')) setExpPaymentMethod('Cash');
-    if (text.includes('card')) setExpPaymentMethod('Card');
+  // AI parse (uses proxy parser with local fallback)
+  const [isParsing, setIsParsing] = useState(false);
 
-    setShowAIInput(false);
-    setNlInput('');
+  const handleAIParse = async () => {
+    if (!nlInput.trim()) return;
+    setIsParsing(true);
+    try {
+      if (activeTab === 'expense') {
+        const parsed = await (await import('../services/geminiService')).parseExpenseFromText(nlInput);
+        if (parsed) {
+          setExpAmount(String(parsed.amount || ''));
+          const cat = CATEGORY_OPTIONS.includes(parsed.category as Category) ? (parsed.category as Category) : 'Other';
+          setExpCategory(cat);
+          setExpDesc(parsed.description || '');
+          setExpDate(parsed.date || todayIso());
+          const pm = ['Cash','Card','UPI','Other'].includes(parsed.paymentMethod) ? (parsed.paymentMethod as PaymentMethod) : 'UPI';
+          setExpPaymentMethod(pm);
+        }
+      } else {
+        const parsed = await (await import('../services/geminiService')).parseIncomeFromText(nlInput);
+        if (parsed) {
+          setIncAmount(String(parsed.amount || ''));
+          const incCat = INCOME_CATEGORIES.includes(parsed.category as IncomeCategory) ? (parsed.category as IncomeCategory) : 'Other';
+          setIncCategory(incCat);
+          setIncSource(parsed.source || '');
+          setIncDate(parsed.date || todayIso());
+        }
+      }
+
+      setShowAIInput(false);
+      setNlInput('');
+    } catch {
+      // fallback to the small local parser already in the file
+      const text = nlInput.toLowerCase();
+      const amtMatch = text.match(/\b(\d+(?:[.,]\d{1,2})?)\b/);
+      if (amtMatch) {
+        setExpAmount(amtMatch[1].replace(',', '.'));
+        setIncAmount(amtMatch[1].replace(',', '.'));
+      }
+      for (const c of CATEGORY_OPTIONS) {
+        if (text.includes(c.toLowerCase())) {
+          setExpCategory(c);
+        }
+      }
+      if (text.includes('rent') || text.includes('tenant')) {
+        setIncCategory('Rent');
+      }
+      if (text.includes('cash')) setExpPaymentMethod('Cash');
+      if (text.includes('card')) setExpPaymentMethod('Card');
+
+      setShowAIInput(false);
+      setNlInput('');
+    } finally {
+      setIsParsing(false);
+    }
   };
 
 
@@ -128,15 +162,29 @@ export default function AddTransactionModal({ visible, onClose, initialTab = 'ex
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <View style={styles.headerTabs}>
-            <TouchableOpacity onPress={() => setActiveTab('expense')} style={[styles.tabButton, activeTab === 'expense' && styles.tabActive]}>
+            <TouchableOpacity
+              onPress={() => setActiveTab('expense')}
+              style={[styles.tabButton, activeTab === 'expense' && styles.tabActive]}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: activeTab === 'expense' }}
+              accessibilityLabel={t('Expense') || 'Expense'}
+            >
               <TrendingDown size={16} color={activeTab === 'expense' ? '#ef4444' : '#6b7280'} />
               <Text style={[styles.tabText, activeTab === 'expense' && styles.tabTextActive]}>{t('Expense') || 'Expense'}</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setActiveTab('income')} style={[styles.tabButton, activeTab === 'income' && styles.tabActive]}>
+
+            <TouchableOpacity
+              onPress={() => setActiveTab('income')}
+              style={[styles.tabButton, activeTab === 'income' && styles.tabActive]}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: activeTab === 'income' }}
+              accessibilityLabel={t('Income') || 'Income'}
+            >
               <TrendingUp size={16} color={activeTab === 'income' ? '#0d9488' : '#6b7280'} />
               <Text style={[styles.tabText, activeTab === 'income' && styles.tabTextActive]}>{t('Income') || 'Income'}</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+
+            <TouchableOpacity onPress={onClose} style={styles.closeButton} accessibilityRole="button" accessibilityLabel={t('Close') || 'Close'}>
               <X size={18} color="#374151" />
             </TouchableOpacity>
           </View>
@@ -145,13 +193,15 @@ export default function AddTransactionModal({ visible, onClose, initialTab = 'ex
             {activeTab === 'expense' ? (
               <View>
                 {!showAIInput ? (
-                  <TouchableOpacity style={styles.aiButton} onPress={() => setShowAIInput(true)}>
+                  <TouchableOpacity style={styles.aiButton} onPress={() => setShowAIInput(true)} accessibilityRole="button" accessibilityLabel={t('Magic Fill with AI') || 'Magic Fill with AI'}>
                     <Text style={styles.aiButtonText}>✨ {t('Magic Fill with AI') || 'Magic Fill with AI'}</Text>
                   </TouchableOpacity>
                 ) : (
                   <View style={styles.aiInputRow}>
-                    <TextInput value={nlInput} onChangeText={setNlInput} placeholder={t('magic_fill_placeholder') || 'e.g. Lunch 120 UPI'} style={styles.textInput} />
-                    <TouchableOpacity onPress={handleAIParse} style={styles.iconButton}><Check size={18} color="#ffffff" /></TouchableOpacity>
+                    <TextInput value={nlInput} onChangeText={setNlInput} placeholder={t('magic_fill_placeholder') || 'e.g. Lunch 120 UPI'} style={styles.textInput} accessibilityLabel={t('magic_fill_placeholder') || 'Natural language input'} />
+                    <TouchableOpacity onPress={handleAIParse} style={styles.iconButton} disabled={isParsing} accessibilityRole="button" accessibilityLabel={t('Magic Fill with AI') || 'Apply AI parse'}>
+                      {isParsing ? <Text style={styles.loadingDot}>…</Text> : <Check size={18} color="#ffffff" />}
+                    </TouchableOpacity>
                   </View>
                 )}
 
@@ -209,7 +259,9 @@ export default function AddTransactionModal({ visible, onClose, initialTab = 'ex
                 ) : (
                   <View style={styles.aiInputRow}>
                     <TextInput value={nlInput} onChangeText={setNlInput} placeholder={t('magic_fill_placeholder') || 'e.g. Rent 5000 from John'} style={styles.textInput} />
-                    <TouchableOpacity onPress={handleAIParse} style={styles.iconButton}><Check size={18} color="#ffffff" /></TouchableOpacity>
+                    <TouchableOpacity onPress={handleAIParse} style={styles.iconButton} disabled={isParsing}>
+                      {isParsing ? <Text style={styles.loadingDot}>…</Text> : <Check size={18} color="#ffffff" />}
+                    </TouchableOpacity>
                   </View>
                 )}
 
@@ -284,6 +336,7 @@ const styles = StyleSheet.create({
   iconButton: { backgroundColor: '#7c3aed', borderRadius: 8, marginLeft: 8, padding: 10 },
   inputError: { borderColor: '#ef4444', borderWidth: 1 },
   label: { color: '#6b7280', fontSize: 12, fontWeight: '600', marginBottom: 6 },
+  loadingDot: { color: '#fff', fontWeight: '700' },
   pickerWrap: { backgroundColor: '#f8fafc', borderRadius: 10 },
   row2: { flexDirection: 'row', marginBottom: 12 },
   saveBtn: { alignItems: 'center', backgroundColor: '#ef4444', borderRadius: 12, marginTop: 8, padding: 14 },

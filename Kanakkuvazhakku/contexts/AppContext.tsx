@@ -133,6 +133,7 @@ const AppContext = createContext<{
   updateIncome: (income: Income) => void;
   deleteIncome: (id: string) => void;
   restoreIncome: (income: Income) => void;
+  loadDemoData: (data?: { expenses?: Expense[]; incomes?: Income[]; budgets?: Budget[]; user?: Partial<UserProfile> }) => void;
 } | null>(null);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -257,8 +258,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     dispatch({ type: 'ADD_CHAT_MESSAGE', payload: msg });
   };
 
+  const loadDemoData = (data?: { expenses?: Expense[]; incomes?: Income[]; budgets?: Budget[]; user?: Partial<UserProfile> }) => {
+    const payload: { expenses: Expense[]; incomes: Income[]; budgets: Budget[]; user?: UserProfile } = {
+      expenses: (data?.expenses as Expense[]) || [],
+      incomes: (data?.incomes as Income[]) || [],
+      budgets: (data?.budgets as Budget[]) || [],
+      user: data?.user ? ({ ...(data.user as UserProfile) } as UserProfile) : undefined,
+    };
+    dispatch({ type: 'LOAD_DATA', payload });
+  };
+
   return (
-    <AppContext.Provider value={{ state, dispatch, addExpense, addIncomeSmart, addChatMessage, updateBudget, deleteExpense, restoreExpense, updateIncome, deleteIncome, restoreIncome }}>
+    <AppContext.Provider value={{ state, dispatch, addExpense, addIncomeSmart, addChatMessage, updateBudget, deleteExpense, restoreExpense, updateIncome, deleteIncome, restoreIncome, loadDemoData }}>
       {children}
     </AppContext.Provider>
   );

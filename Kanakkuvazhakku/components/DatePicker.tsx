@@ -50,7 +50,12 @@ export default function DatePicker({ dateIso, onChange, style }: Props) {
 
   return (
     <View style={[styles.container, style]}>
-      <TouchableOpacity onPress={open} style={styles.button}>
+      <TouchableOpacity
+        onPress={open}
+        style={styles.button}
+        accessibilityRole="button"
+        accessibilityLabel={`Select date, ${formatDisplayDate(dateIso)}`}
+      >
         <Text>{formatDisplayDate(dateIso)}</Text>
       </TouchableOpacity>
       {show && Platform.OS !== 'web' && (

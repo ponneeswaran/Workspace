@@ -5,18 +5,28 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { ArrowRight, Smartphone, Lock, ArrowLeft, CheckCircle2, Fingerprint, User, Clock, Trash2 } from 'lucide-react-native';
-import { LocalBackup } from '../utils/storage';
+import type { LocalBackup, Expense, Income, Budget, UserProfile } from '../types';
 import { useTranslation } from 'react-i18next';
 
+import * as DocumentPicker from 'expo-document-picker';
+import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
+import { saveLocalBackup } from '../utils/storage';
+import { useApp } from '../contexts/AppContext';
 
 import { useAuth } from '../utils/useAuth';
 
 // Mock OTPScreen
 const OTPScreen = ({ onVerify, onBack }: { onVerify: () => void, onBack: () => void }) => (
     <View style={styles.container}>
-        <TouchableOpacity onPress={onBack} style={styles.otpBackButton}><ArrowLeft size={24} color="#334155" /></TouchableOpacity>
+        <TouchableOpacity onPress={onBack} style={styles.otpBackButton} accessibilityRole="button" accessibilityLabel="Back">
+          <ArrowLeft size={24} color="#334155" />
+        </TouchableOpacity>
         <Text style={styles.title}>OTP Screen</Text>
-        <TouchableOpacity style={styles.button} onPress={onVerify}><Text style={styles.buttonText}>Verify OTP</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={onVerify} accessibilityRole="button" accessibilityLabel="Verify OTP">
+          <Text style={styles.buttonText}>Verify OTP</Text>
+        </TouchableOpacity>
     </View>
 );
 const AuthView: React.FC = () => {
@@ -207,34 +217,124 @@ const AuthView: React.FC = () => {
         }
     }
 
-    const handleRestoreClick = (backupId: string) => {
-        Alert.prompt(
-            t('enter_password'),
-            t('enter_password_to_restore_backup'),
-            [
-                {
-                    text: t('cancel'),
-                    style: 'cancel',
-                },
-                {
-                    text: t('restore'),
-                    onPress: async (password: string | undefined) => {
-                        if (password) {
-                            try {
-                                // Here you would add your logic to restore the backup using the password
-                                // For now, we'll just log it.
-                                console.log(`Restoring backup ${backupId} with password: ${password}`);
-                                Alert.alert(t('restore_successful'), t('backup_restored_successfully'));
-                            } catch (error) {
-                                console.error('Error restoring backup:', error);
-                                Alert.alert(t('restore_failed'), t('error_restoring_backup'));
-                            }
-                        }
-                    },
-                },
-            ],
-            'secure-text'
-        );
+    const { loadDemoData } = useApp();
+
+    type BackupPayload = { expenses?: Expense[]; incomes?: Income[]; budgets?: Budget[]; user?: Partial<UserProfile> };
+
+    const applyRestoredData = async (data: BackupPayload) => {
+        try {
+            // persist into AsyncStorage so AppContext will pick it up on load
+            await AsyncStorage.setItem('expenses', JSON.stringify(data.expenses || []));
+            await AsyncStorage.setItem('incomes', JSON.stringify(data.incomes || []));
+            await AsyncStorage.setItem('budgets', JSON.stringify(data.budgets || []));
+            if (data.user) {
+                await SecureStore.setItemAsync('user_session', JSON.stringify(data.user));
+                await AsyncStorage.setItem('user', JSON.stringify(data.user));
+            }
+
+            // update in-memory app state immediately
+            loadDemoData({ expenses: data.expenses || [], incomes: data.incomes || [], budgets: data.budgets || [], user: data.user || undefined });
+
+            // save a local backup record so it appears in Recent Device Backups
+            const id = String(Date.now());
+            const meta: LocalBackup = { id, date: new Date().toISOString(), userName: data.user?.name || 'You', content: JSON.stringify(data), size: JSON.stringify(data).length };
+            await saveLocalBackup(meta);
+            setLocalBackups(await getLocalBackups());
+
+            Alert.alert(t('restore_successful'), t('backup_restored_successfully'));
+        } catch (err) {
+            console.error('applyRestoredData error', err);
+            Alert.alert(t('restore_failed'), t('error_restoring_backup'));
+        }
+    };
+
+    const handleRestoreClick = async (backupId: string) => {
+        try {
+            if (backupId === 'imported_file') {
+                // let user pick a .kbf file
+                type DocRes = { type: 'success'; uri: string } | { type: 'cancel' };
+                const res = (await DocumentPicker.getDocumentAsync({ type: '*/*' })) as unknown as DocRes;
+                if (res.type !== 'success' || !res.uri) return;
+
+                const content = await FileSystem.readAsStringAsync(res.uri);
+                // try plain JSON first
+                try {
+                    const parsed = JSON.parse(content);
+                    await applyRestoredData(parsed);
+                    return;
+                } catch {
+                    // not plain JSON — prompt for password to attempt decryption
+                    Alert.prompt(
+                        t('enter_password') || 'Enter password',
+                        t('enter_password_to_restore_backup') || 'Enter password to restore backup',
+                        [
+                          { text: t('cancel') || 'Cancel', style: 'cancel' },
+                          { text: t('Restore') || 'Restore', onPress: async (pwd?: string) => {
+                              if (!pwd) { Alert.alert(t('restore_failed') || 'Restore failed'); return; }
+                              const { decryptBackup } = await import('../utils/crypto');
+                              const decrypted = decryptBackup(content, pwd);
+                              if (!decrypted) { Alert.alert(t('restore_failed') || 'Restore failed'); return; }
+                              try {
+                                const parsed = JSON.parse(decrypted);
+                                await applyRestoredData(parsed);
+                              } catch (err) {
+                                console.error('Decrypted content is invalid', err);
+                                Alert.alert(t('restore_failed'), t('invalid_backup_file') || 'Invalid backup file');
+                              }
+                          }}
+                        ],
+                        'secure-text'
+                    );
+                    return;
+                }
+            }
+
+            // restore from a local saved backup entry
+            const backups = await getLocalBackups();
+            const found = backups.find(b => b.id === backupId);
+            if (!found) {
+                Alert.alert(t('restore_failed'), t('backup_not_found') || 'Backup not found');
+                return;
+            }
+
+            // if content looks encrypted you'd prompt for a password here; current backups are JSON
+            try {
+                // try JSON first
+                try {
+                    const parsed = JSON.parse(found.content || '{}');
+                    await applyRestoredData(parsed);
+                } catch {
+                    // not plain JSON -> prompt for password
+                    Alert.prompt(
+                        t('enter_password') || 'Enter password',
+                        t('enter_password_to_restore_backup') || 'Enter password to restore backup',
+                        [
+                          { text: t('cancel') || 'Cancel', style: 'cancel' },
+                          { text: t('Restore') || 'Restore', onPress: async (pwd?: string) => {
+                              if (!pwd) { Alert.alert(t('restore_failed') || 'Restore failed'); return; }
+                              const { decryptBackup } = await import('../utils/crypto');
+                              const decrypted = decryptBackup(found.content, pwd);
+                              if (!decrypted) { Alert.alert(t('restore_failed') || 'Restore failed'); return; }
+                              try {
+                                const parsed = JSON.parse(decrypted);
+                                await applyRestoredData(parsed);
+                              } catch (err) {
+                                console.error('Decrypted content is invalid', err);
+                                Alert.alert(t('restore_failed'), t('invalid_backup_file') || 'Invalid backup file');
+                              }
+                          }}
+                        ],
+                        'secure-text'
+                    );
+                }
+            } catch (err) {
+                console.error('handleRestoreClick error', err);
+                Alert.alert(t('restore_failed'), t('error_restoring_backup'));
+            }
+        } catch (err) {
+            console.error('handleRestoreClick error', err);
+            Alert.alert(t('restore_failed'), t('error_restoring_backup'));
+        }
     };
 
     if (viewState === 'forgot_input') {
@@ -334,7 +434,7 @@ const AuthView: React.FC = () => {
                               <Text style={styles.backupSubtitle}>{t('restore_account_from_kbf_file')}</Text>
                           </View>
                       </View>
-                      <TouchableOpacity onPress={() => handleRestoreClick('imported_file')} disabled={isRestoring} style={styles.importButton}>
+                      <TouchableOpacity onPress={() => handleRestoreClick('imported_file')} disabled={isRestoring} style={styles.importButton} accessibilityRole="button" accessibilityLabel={t('import') || 'Import backup'}>
                           {isRestoring ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.importButtonText}>{t('import')}</Text>}
                       </TouchableOpacity>
                   </View>
@@ -359,8 +459,8 @@ const AuthView: React.FC = () => {
                                           <TouchableOpacity onPress={async () => {
                                               await deleteLocalBackup(backup.id);
                                               setLocalBackups(prev => prev.filter(b => b.id !== backup.id));
-                                          }}><Trash2 size={16} color="#94A3B8" /></TouchableOpacity>
-                                          <TouchableOpacity onPress={() => handleRestoreClick(backup.id)} style={styles.restoreButton}><Text style={styles.restoreButtonText}>{t('restore')}</Text></TouchableOpacity>
+                                          }} accessibilityRole="button" accessibilityLabel={`Delete backup ${new Date(backup.date).toLocaleDateString()}`}><Trash2 size={16} color="#94A3B8" /></TouchableOpacity>
+                                          <TouchableOpacity onPress={() => handleRestoreClick(backup.id)} style={styles.restoreButton} accessibilityRole="button" accessibilityLabel={`${t('restore')} ${new Date(backup.date).toLocaleDateString()}`}><Text style={styles.restoreButtonText}>{t('restore')}</Text></TouchableOpacity>
                                       </View>
                                   </View>
                               ))}
@@ -380,6 +480,7 @@ const AuthView: React.FC = () => {
                       placeholder={t('enter_mobile_or_email')}
                       style={[styles.input, error ? styles.inputError : {}]}
                       keyboardType="email-address"
+                      accessibilityLabel={t('mobile_number_or_email') || 'Mobile number or email'}
                   />
               </View>
           </View>
@@ -395,9 +496,10 @@ const AuthView: React.FC = () => {
                           placeholder="••••••••"
                           secureTextEntry
                           style={[styles.input, error ? styles.inputError : {}]}
+                          accessibilityLabel={t('password') || 'Password'}
                       />
                        {canUseBiometric && (
-                          <TouchableOpacity onPress={handleBiometricLogin} style={styles.biometricButton}>
+                          <TouchableOpacity onPress={handleBiometricLogin} style={styles.biometricButton} accessibilityRole="button" accessibilityLabel={t('Use biometric login') || 'Use biometric login'}>
                               <Fingerprint size={20} color="#14B8A6" />
                           </TouchableOpacity>
                       )}

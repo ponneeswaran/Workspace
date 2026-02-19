@@ -51,15 +51,15 @@ export default function ImageCropper({ imageUri, onCancel, onCrop }: Props) {
           <Slider value={scale} onValueChange={setScale} minimumValue={0.5} maximumValue={2} step={0.01} style={styles.slider} />
         ) : (
           <View style={styles.zoomRow}>
-            <TouchableOpacity onPress={() => setScale(s => Math.max(0.5, +(s - 0.1).toFixed(2)))} style={styles.zoomBtn}><Text>-</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setScale(s => Math.max(0.5, +(s - 0.1).toFixed(2)))} style={styles.zoomBtn} accessibilityRole="button" accessibilityLabel="Zoom out"><Text>-</Text></TouchableOpacity>
             <Text style={styles.scaleText}>{scale.toFixed(2)}</Text>
-            <TouchableOpacity onPress={() => setScale(s => Math.min(2, +(s + 0.1).toFixed(2)))} style={styles.zoomBtn}><Text>+</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setScale(s => Math.min(2, +(s + 0.1).toFixed(2)))} style={styles.zoomBtn} accessibilityRole="button" accessibilityLabel="Zoom in"><Text>+</Text></TouchableOpacity>
           </View>
         )}
 
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}><Text style={styles.cancelText}>Cancel</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.cropBtn} onPress={handleCrop}><Text style={styles.cropText}>Crop</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.cancelBtn} onPress={onCancel} accessibilityRole="button" accessibilityLabel="Cancel"><Text style={styles.cancelText}>Cancel</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.cropBtn} onPress={handleCrop} accessibilityRole="button" accessibilityLabel="Crop"><Text style={styles.cropText}>Crop</Text></TouchableOpacity>
         </View>
       </View>
     </View>

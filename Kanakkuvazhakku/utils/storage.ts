@@ -1,11 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export interface LocalBackup {
-  id: string;
-  date: Date;
-  userName: string;
-  size: number;
-}
+import { LocalBackup } from '../types';
 
 const LOCAL_BACKUPS_KEY = 'localBackups';
 

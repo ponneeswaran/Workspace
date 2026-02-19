@@ -28,7 +28,9 @@ export default function TransactionDetailsModal({ visible, item, onClose, onDele
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}><X size={20} color="#374151" /></TouchableOpacity>
+            <TouchableOpacity onPress={onClose} style={styles.closeBtn} accessibilityRole="button" accessibilityLabel={t('Close') || 'Close'}>
+              <X size={20} color="#374151" />
+            </TouchableOpacity>
             <Text style={styles.amount}>{isExpense ? '-' : '+'}₹{item.amount.toFixed(2)}</Text>
             <View style={styles.headerSpacer} />
           </View>
@@ -68,7 +70,9 @@ export default function TransactionDetailsModal({ visible, item, onClose, onDele
             )}
 
             <View style={styles.spacerSmall} />
-            <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}><Text style={styles.deleteText}>{t('Delete Transaction') || 'Delete Transaction'}</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.deleteButton} onPress={handleDelete} accessibilityRole="button" accessibilityLabel={t('Delete Transaction') || 'Delete Transaction'}>
+              <Text style={styles.deleteText}>{t('Delete Transaction') || 'Delete Transaction'}</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
