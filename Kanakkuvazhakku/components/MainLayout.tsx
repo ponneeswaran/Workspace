@@ -8,9 +8,11 @@ import { lightTheme, darkTheme } from '../utils/theme';
 
 interface MainLayoutProps {
   children: ReactNode;
+  /** Hide bottom footer (useful for auth / onboarding screens) */
+  showFooter?: boolean;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children, showFooter = true }) => {
   const [footerHeight, setFooterHeight] = useState(0);
 
   const onFooterLayout = (event: import('react-native').LayoutChangeEvent) => {
@@ -23,17 +25,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const theme = state.theme === 'light' ? lightTheme : darkTheme;
   const orientation = width > height ? 'landscape' : 'portrait';
 
+  const injectedFooterHeight = showFooter ? footerHeight : 0;
+
   if (orientation === 'landscape') {
     return (
       <View style={[styles.safeArea, { backgroundColor: theme.colors.background }, styles.containerLandscape]}>
         <SafeAreaView style={styles.flex1}>
           <View style={styles.content}>
             {React.Children.map(children, child =>
-              React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<{ footerHeight?: number }>, { footerHeight }) : child
+              React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<{ footerHeight?: number }>, { footerHeight: injectedFooterHeight }) : child
             )}
           </View>
         </SafeAreaView>
-        <Footer activeTab={route.name} orientation={orientation} theme={theme} onLayout={onFooterLayout} />
+        {showFooter && <Footer activeTab={route.name} orientation={orientation} theme={theme} onLayout={onFooterLayout} />}
       </View>
     );
   }
@@ -43,10 +47,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <View style={styles.containerPortrait}>
         <View style={styles.content}>
           {React.Children.map(children, child =>
-            React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<{ footerHeight?: number }>, { footerHeight }) : child
+            React.isValidElement(child) ? React.cloneElement(child as React.ReactElement<{ footerHeight?: number }>, { footerHeight: injectedFooterHeight }) : child
           )}
         </View>
-        <Footer activeTab={route.name} orientation={orientation} theme={theme} onLayout={onFooterLayout} />
+        {showFooter && <Footer activeTab={route.name} orientation={orientation} theme={theme} onLayout={onFooterLayout} />}
       </View>
     </SafeAreaView>
   );

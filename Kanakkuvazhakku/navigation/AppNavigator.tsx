@@ -78,10 +78,18 @@ const RootNavigator: React.FC = () => (
   <NavigationContainer>
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Splash" component={SplashView} />
-      <Stack.Screen name="Auth" component={AuthView} />
+      <Stack.Screen name="Auth" component={() => (
+        <MainLayout showFooter={false}>
+          <AuthView />
+        </MainLayout>
+      )} />
       <Stack.Screen name="Onboarding" component={OnboardingView} />
       <Stack.Screen name="Terms" component={TermsScreen} />
-      <Stack.Screen name="Registration" component={RegistrationView} />
+      <Stack.Screen name="Registration" component={() => (
+        <MainLayout showFooter={false}>
+          <RegistrationView />
+        </MainLayout>
+      )} />
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
       <Stack.Screen name="Expenses" component={ExpensesScreen} />
       <Stack.Screen name="Income" component={IncomeScreen} />
