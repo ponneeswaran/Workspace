@@ -224,7 +224,21 @@ export default function AddTransactionModal({ visible, onClose, initialTab = 'ex
                   <View style={styles.col}>
                     <Text style={styles.label}>{t('Category') || 'Category'}</Text>
                     <View style={styles.pickerWrap}>
-                      <Picker selectedValue={expCategory} onValueChange={(v) => setExpCategory(v as Category)}>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryChipsRow} keyboardShouldPersistTaps="handled">
+                        {CATEGORY_OPTIONS.map(c => (
+                          <TouchableOpacity
+                            key={c}
+                            onPress={() => setExpCategory(c)}
+                            style={[styles.chip, expCategory === c && styles.chipActive]}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: expCategory === c }}
+                          >
+                            <Text style={expCategory === c ? styles.chipTextActive : styles.chipText}>{c}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+                      {/* keep platform picker as fallback (hidden visually on some devices) */}
+                      <Picker selectedValue={expCategory} onValueChange={(v) => setExpCategory(v as Category)} style={styles.hiddenPicker}>
                         {CATEGORY_OPTIONS.map(c => <Picker.Item key={c} label={c} value={c} />)}
                       </Picker>
                     </View>
@@ -325,6 +339,11 @@ const styles = StyleSheet.create({
   amountInput: { backgroundColor: '#f8fafc', borderRadius: 10, flex: 1, fontSize: 18, padding: 12 },
   amountRow: { alignItems: 'center', flexDirection: 'row', marginBottom: 12 },
   backdrop: { backgroundColor: 'rgba(0,0,0,0.5)', flex: 1, justifyContent: 'flex-end' },
+  categoryChipsRow: { gap: 8, paddingHorizontal: 6, paddingVertical: 8 },
+  chip: { backgroundColor: '#fff', borderColor: '#e6e9ee', borderRadius: 20, borderWidth: 1, marginRight: 8, paddingHorizontal: 12, paddingVertical: 8 },
+  chipActive: { backgroundColor: '#0d9488', borderColor: '#0d9488' },
+  chipText: { color: '#374151' },
+  chipTextActive: { color: '#fff', fontWeight: '700' },
   closeButton: { padding: 8, position: 'absolute', right: 8, top: 6 },
   col: { flex: 1 },
   colRight: { flex: 1, marginLeft: 12 },
@@ -333,6 +352,7 @@ const styles = StyleSheet.create({
   dateButton: { alignItems: 'center', backgroundColor: '#f8fafc', borderRadius: 10, flexDirection: 'row', justifyContent: 'space-between', padding: 12 },
   datePickerFlex: { flex: 1 },
   headerTabs: { alignItems: 'center', borderBottomWidth: 1, borderColor: '#e6e9ee', flexDirection: 'row', paddingHorizontal: 8 },
+  hiddenPicker: { height: 0, opacity: 0 },
   iconButton: { backgroundColor: '#7c3aed', borderRadius: 8, marginLeft: 8, padding: 10 },
   inputError: { borderColor: '#ef4444', borderWidth: 1 },
   label: { color: '#6b7280', fontSize: 12, fontWeight: '600', marginBottom: 6 },
