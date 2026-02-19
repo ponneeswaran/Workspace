@@ -95,7 +95,7 @@ const ChatView: React.FC<ChatViewProps> = ({ footerHeight = 0 }) => {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={footerHeight}
+      keyboardVerticalOffset={footerHeight + (Platform.OS === 'ios' ? 20 : 0)}
     >
       <View style={styles.header}>
         <Text style={[styles.title, { color: colors.text }]}>AI Assistant</Text>
@@ -108,9 +108,9 @@ const ChatView: React.FC<ChatViewProps> = ({ footerHeight = 0 }) => {
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}
         style={styles.messagesList}
-        contentContainerStyle={{ paddingBottom: footerHeight }}
+        contentContainerStyle={{ paddingBottom: footerHeight + 80 }}
       />
-      <View style={styles.inputContainer}>
+      <View style={[styles.inputContainer, { marginBottom: footerHeight }]}>
         <TextInput
           style={styles.input}
           value={input}
